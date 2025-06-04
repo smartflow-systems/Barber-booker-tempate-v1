@@ -184,11 +184,11 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
+        <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Today's Revenue</p>
+                <p className="text-sm font-medium text-slate-300">Today's Revenue</p>
                 <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{formatPrice(todayRevenue)}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -198,11 +198,11 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
+        <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">This Week</p>
+                <p className="text-sm font-medium text-slate-300">This Week</p>
                 <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">{thisWeekBookings.length}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -212,11 +212,11 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
+        <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Total Bookings</p>
+                <p className="text-sm font-medium text-slate-300">Total Bookings</p>
                 <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">{bookings.length}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -228,10 +228,10 @@ export function AdminDashboard() {
       </div>
 
       {/* Bookings Table */}
-      <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-        <CardHeader className="border-b border-slate-200/50 bg-gradient-to-r from-slate-50 to-blue-50 rounded-t-lg">
+      <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm">
+        <CardHeader className="border-b border-slate-600/50 bg-gradient-to-r from-slate-700 to-slate-600 rounded-t-lg">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl bg-gradient-to-r from-slate-800 to-blue-700 bg-clip-text text-transparent">All Bookings</CardTitle>
+            <CardTitle className="text-xl text-white">All Bookings</CardTitle>
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
