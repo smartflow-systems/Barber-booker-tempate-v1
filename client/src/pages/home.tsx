@@ -31,18 +31,18 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200">
+      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <i className="fas fa-cut text-white text-lg"></i>
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+                <i className="fas fa-cut text-white text-xl"></i>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-900">BarberShop Pro</h1>
-                <p className="text-sm text-slate-500">Professional Booking System</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-800 to-indigo-700 bg-clip-text text-transparent">BarberShop Pro</h1>
+                <p className="text-sm text-slate-600 font-medium">Professional Booking System</p>
               </div>
             </div>
             <nav className="flex items-center space-x-6">

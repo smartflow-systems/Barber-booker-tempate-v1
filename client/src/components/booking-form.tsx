@@ -163,13 +163,13 @@ export function BookingForm() {
     <div className="grid lg:grid-cols-3 gap-8">
       {/* Booking Form */}
       <div className="lg:col-span-2">
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader className="bg-slate-50 border-b border-slate-200">
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100/50 rounded-t-lg">
             <CardTitle className="text-2xl text-slate-900 flex items-center">
-              <CalendarCheck className="text-primary mr-3" />
+              <CalendarCheck className="text-blue-600 mr-3" />
               Book Your Appointment
             </CardTitle>
-            <p className="text-slate-600">Select your preferred barber, date, and time slot</p>
+            <p className="text-slate-700 font-medium">Select your preferred barber, date, and time slot</p>
           </CardHeader>
           
           <CardContent className="p-6">
@@ -194,9 +194,9 @@ export function BookingForm() {
                       />
                       <label
                         htmlFor={`barber-${barber.id}`}
-                        className="flex items-center p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer peer-checked:border-primary peer-checked:bg-blue-50 hover:border-slate-300 transition-all"
+                        className="flex items-center p-5 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-gradient-to-r peer-checked:from-blue-50 peer-checked:to-indigo-50 peer-checked:shadow-lg hover:border-blue-300 hover:shadow-md transition-all duration-200"
                       >
-                        <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold mr-4">
+                        <div className="w-14 h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold mr-4 shadow-lg">
                           {barber.avatar}
                         </div>
                         <div className="flex-1">
@@ -253,13 +253,13 @@ export function BookingForm() {
                           key={slot}
                           type="button"
                           onClick={() => setSelectedTime(slot)}
-                          className={`p-3 text-center border-2 rounded-lg cursor-pointer transition-all ${
+                          className={`p-3 text-center border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                             selectedTime === slot
-                              ? "border-primary bg-primary text-white"
-                              : "border-slate-200 hover:border-slate-300"
+                              ? "border-blue-500 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg transform scale-105"
+                              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 hover:shadow-md"
                           }`}
                         >
-                          <span className="font-medium">{formatTime(slot)}</span>
+                          <span className="font-semibold">{formatTime(slot)}</span>
                         </button>
                       ))}
                     </div>
@@ -329,7 +329,7 @@ export function BookingForm() {
                       />
                       <label
                         htmlFor={`service-${service.id}`}
-                        className="flex items-center justify-between p-3 border-2 border-slate-200 rounded-lg cursor-pointer peer-checked:border-primary peer-checked:bg-blue-50 hover:border-slate-300 transition-all"
+                        className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-gradient-to-r peer-checked:from-blue-50 peer-checked:to-indigo-50 peer-checked:shadow-lg hover:border-blue-300 hover:shadow-md transition-all duration-200"
                       >
                         <div>
                           <div className="font-medium text-slate-900">{service.name}</div>
@@ -388,10 +388,10 @@ export function BookingForm() {
 
       {/* Booking Summary */}
       <div className="space-y-6" data-tour="booking-summary">
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader>
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-100/50 rounded-t-lg">
             <CardTitle className="text-lg text-slate-900 flex items-center">
-              <i className="fas fa-clipboard-list text-primary mr-2"></i>
+              <i className="fas fa-clipboard-list text-indigo-600 mr-2"></i>
               Booking Summary
             </CardTitle>
           </CardHeader>
@@ -431,10 +431,10 @@ export function BookingForm() {
         </Card>
 
         {/* Store Information */}
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader>
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100/50 rounded-t-lg">
             <CardTitle className="text-lg text-slate-900 flex items-center">
-              <i className="fas fa-store text-primary mr-2"></i>
+              <i className="fas fa-store text-emerald-600 mr-2"></i>
               Store Information
             </CardTitle>
           </CardHeader>
