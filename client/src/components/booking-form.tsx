@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, Phone, CalendarCheck, Star, MessageCircle } from "lucide-react";
 import { SuccessModal } from "@/components/success-modal";
 import { CalendarView } from "@/components/calendar-view";
+import { BarberProfile } from "@/components/barber-profile";
 import { useToast } from "@/hooks/use-toast";
 import type { Barber, Service } from "@shared/schema";
 
