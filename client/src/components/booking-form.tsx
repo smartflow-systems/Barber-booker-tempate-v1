@@ -197,13 +197,13 @@ export function BookingForm() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Booking Form */}
         <div className="lg:col-span-2" data-booking-form>
-          <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100/50 rounded-t-lg">
-              <CardTitle className="text-2xl text-slate-900 flex items-center">
-                <CalendarCheck className="text-blue-600 mr-3" />
+          <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-600 border-b border-slate-600/50 rounded-t-lg">
+              <CardTitle className="text-2xl text-white flex items-center">
+                <CalendarCheck className="text-blue-400 mr-3" />
                 Book Your Appointment
               </CardTitle>
-              <p className="text-slate-700 font-medium">Select your preferred barber, date, and time slot</p>
+              <p className="text-slate-300 font-medium">Select your preferred barber, date, and time slot</p>
             </CardHeader>
           
           <CardContent className="p-6">

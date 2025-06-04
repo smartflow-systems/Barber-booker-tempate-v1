@@ -146,7 +146,7 @@ export function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Dashboard Header */}
-      <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+      <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -170,11 +170,11 @@ export function AdminDashboard() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
+        <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Today's Bookings</p>
+                <p className="text-sm font-medium text-slate-300">Today's Bookings</p>
                 <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{todayBookings.length}</p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">

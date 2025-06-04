@@ -139,10 +139,10 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100/50 rounded-t-lg">
+    <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-600 border-b border-slate-600/50 rounded-t-lg">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl text-slate-900 flex items-center">
+          <CardTitle className="text-xl text-white flex items-center">
             <Calendar className="text-blue-600 mr-2" />
             Booking Calendar
           </CardTitle>
