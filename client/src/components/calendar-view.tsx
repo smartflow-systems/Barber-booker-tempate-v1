@@ -9,9 +9,10 @@ import type { Booking, Barber, Service } from "@shared/schema";
 interface CalendarViewProps {
   onDateSelect?: (date: string) => void;
   selectedBarber?: number | null;
+  onQuickBook?: (date: string, barberId?: number) => void;
 }
 
-export function CalendarView({ onDateSelect, selectedBarber }: CalendarViewProps) {
+export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string>("");
 
@@ -103,6 +104,27 @@ export function CalendarView({ onDateSelect, selectedBarber }: CalendarViewProps
     const dateString = getDateString(day);
     setSelectedDate(dateString);
     onDateSelect?.(dateString);
+  };
+
+  const getAvailableSlots = (day: number) => {
+    const dayBookings = getBookingsForDate(day);
+    const allSlots = [
+      "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+      "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+      "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
+    ];
+    
+    const bookedSlots = dayBookings.map(booking => booking.time);
+    return allSlots.filter(slot => !bookedSlots.includes(slot));
+  };
+
+  const handleQuickBook = (date: string, time: string, barberId?: number) => {
+    onQuickBook?.(date, barberId);
+    // Scroll to booking form and auto-fill
+    const bookingForm = document.querySelector('[data-booking-form]');
+    if (bookingForm) {
+      bookingForm.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const navigateMonth = (direction: number) => {
@@ -198,9 +220,9 @@ export function CalendarView({ onDateSelect, selectedBarber }: CalendarViewProps
                   {day}
                 </div>
                 
-                {/* Booking indicators */}
+                {/* Booking indicators and available slots */}
                 <div className="mt-1 space-y-1">
-                  {dayBookings.slice(0, 2).map((booking, idx) => (
+                  {dayBookings.slice(0, 1).map((booking, idx) => (
                     <div
                       key={booking.id}
                       className={`text-xs p-1 rounded truncate ${
@@ -217,25 +239,62 @@ export function CalendarView({ onDateSelect, selectedBarber }: CalendarViewProps
                     </div>
                   ))}
                   
-                  {dayBookings.length > 2 && (
+                  {dayBookings.length > 1 && (
                     <div className={`text-xs p-1 rounded text-center ${
                       isSelectedDate 
                         ? 'bg-white/20 text-white' 
                         : 'bg-slate-200 text-slate-600'
                     }`}>
-                      +{dayBookings.length - 2} more
+                      +{dayBookings.length - 1} more
                     </div>
                   )}
                   
-                  {dayBookings.length === 0 && !pastDate && (
-                    <div className={`text-xs p-1 rounded text-center ${
-                      isSelectedDate 
-                        ? 'bg-white/20 text-white' 
-                        : 'bg-green-100 text-green-600'
-                    }`}>
-                      Available
-                    </div>
-                  )}
+                  {/* Available slots or quick book button */}
+                  {!pastDate && (() => {
+                    const availableSlots = getAvailableSlots(day);
+                    const hasAvailableSlots = availableSlots.length > 0;
+                    
+                    if (hasAvailableSlots) {
+                      const nextSlot = availableSlots[0];
+                      return (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className={`text-xs w-full h-6 p-0 ${
+                            isSelectedDate 
+                              ? 'bg-white/20 text-white border-white/30 hover:bg-white/30' 
+                              : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuickBook(dateString, nextSlot, selectedBarber || undefined);
+                          }}
+                        >
+                          Book {formatTime(nextSlot)}
+                        </Button>
+                      );
+                    } else if (dayBookings.length === 0) {
+                      return (
+                        <div className={`text-xs p-1 rounded text-center ${
+                          isSelectedDate 
+                            ? 'bg-white/20 text-white' 
+                            : 'bg-green-100 text-green-600'
+                        }`}>
+                          Available
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className={`text-xs p-1 rounded text-center ${
+                          isSelectedDate 
+                            ? 'bg-white/20 text-white' 
+                            : 'bg-red-100 text-red-600'
+                        }`}>
+                          Fully Booked
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
               </div>
             );

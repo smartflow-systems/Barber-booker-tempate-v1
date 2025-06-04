@@ -166,17 +166,37 @@ export function BookingForm() {
     form.setValue("date", date);
   };
 
+  const handleQuickBook = (date: string, barberId?: number) => {
+    // Auto-fill form with calendar selection
+    form.setValue("date", date);
+    setSelectedDate(date);
+    
+    if (barberId) {
+      setSelectedBarber(barberId);
+      form.setValue("barberId", barberId);
+    }
+    
+    // Scroll to booking form
+    setTimeout(() => {
+      const bookingFormElement = document.querySelector('[data-booking-form]');
+      if (bookingFormElement) {
+        bookingFormElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
   return (
     <div className="space-y-8">
       {/* Calendar Overview */}
       <CalendarView 
         onDateSelect={handleCalendarDateSelect}
         selectedBarber={selectedBarber}
+        onQuickBook={handleQuickBook}
       />
       
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Booking Form */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2" data-booking-form>
           <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
             <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100/50 rounded-t-lg">
               <CardTitle className="text-2xl text-slate-900 flex items-center">
