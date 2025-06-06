@@ -1,0 +1,29 @@
+<html>
+  <head><title>Barber Config Generator</title></head>
+  <body>
+    <h2>Create New Barber Config</h2>
+    <form id="configForm">
+      <input name="barberName" placeholder="Barber Shop Name" required /><br />
+      <input name="whatsapp" placeholder="WhatsApp Number (447...)" required /><br />
+      <input name="hours" placeholder="Hours (comma-separated e.g. 09:00,10:00)" /><br />
+      <input name="services" placeholder="Services (comma-separated)" /><br />
+      <input name="logoUrl" placeholder="Logo URL" /><br />
+      <button type="submit">Generate Config</button>
+    </form>
+    <p id="result"></p>
+
+    <script>
+      document.getElementById("configForm").onsubmit = async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        const response = await fetch("/save-config", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(data)
+        });
+        const result = await response.text();
+        document.getElementById("result").innerText = result;
+      };
+    </script>
+  </body>
+</html>
