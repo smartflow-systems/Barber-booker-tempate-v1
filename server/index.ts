@@ -56,9 +56,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Use PORT environment variable for production deployment
+  // Force port 5000 for both development and production
   // this serves both the API and the client.
-  const port = parseInt(process.env.PORT || '5000', 10);
+  const port = 5000;
   
   server.listen({
     port,
