@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { TimeSlotSelector } from "@/components/time-slot-selector";
 import { ChevronLeft, ChevronRight, Calendar, Clock, User } from "lucide-react";
 import type { Booking, Barber, Service } from "@shared/schema";
 
@@ -15,6 +16,8 @@ interface CalendarViewProps {
 export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [showTimeSelector, setShowTimeSelector] = useState(false);
+  const [timeSelectorDate, setTimeSelectorDate] = useState<string>("");
 
   // Fetch bookings
   const { data: bookings = [] } = useQuery({
@@ -102,8 +105,16 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
     if (isPastDate(day)) return;
     
     const dateString = getDateString(day);
-    setSelectedDate(dateString);
-    onDateSelect?.(dateString);
+    const dayBookings = getBookingsForDate(day);
+    
+    // If there are bookings or limited available slots, show the detailed time selector
+    if (dayBookings.length > 0 || getAvailableSlots(day).length <= 6) {
+      setTimeSelectorDate(dateString);
+      setShowTimeSelector(true);
+    } else {
+      setSelectedDate(dateString);
+      onDateSelect?.(dateString);
+    }
   };
 
   const getAvailableSlots = (day: number) => {
@@ -203,7 +214,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                 key={day}
                 onClick={() => handleDateClick(day)}
                 className={`
-                  p-2 h-24 border border-slate-200 rounded-lg cursor-pointer transition-all duration-200 overflow-hidden
+                  p-3 min-h-32 border border-slate-200 rounded-lg cursor-pointer transition-all duration-200 overflow-hidden
                   ${isSelectedDate 
                     ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white border-blue-500 shadow-lg' 
                     : pastDate
@@ -220,32 +231,32 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                   {day}
                 </div>
                 
-                {/* Booking indicators and available slots */}
-                <div className="mt-1 space-y-1">
-                  {dayBookings.slice(0, 1).map((booking, idx) => (
+                {/* Booking indicators - improved layout */}
+                <div className="mt-2 space-y-1">
+                  {dayBookings.slice(0, 2).map((booking, idx) => (
                     <div
                       key={booking.id}
-                      className={`text-xs p-1 rounded truncate ${
+                      className={`text-xs px-2 py-1 rounded-md truncate ${
                         isSelectedDate 
                           ? 'bg-white/20 text-white' 
                           : 'bg-blue-100 text-blue-800'
                       }`}
                       title={`${formatTime(booking.time)} - ${booking.customerName} (${getServiceName(booking.serviceId)})`}
                     >
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-3 h-3" />
-                        <span>{formatTime(booking.time)}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{formatTime(booking.time)}</span>
+                        <User className="w-3 h-3" />
                       </div>
                     </div>
                   ))}
                   
-                  {dayBookings.length > 1 && (
-                    <div className={`text-xs p-1 rounded text-center ${
+                  {dayBookings.length > 2 && (
+                    <div className={`text-xs px-2 py-1 rounded-md text-center font-medium ${
                       isSelectedDate 
                         ? 'bg-white/20 text-white' 
-                        : 'bg-slate-200 text-slate-600'
+                        : 'bg-orange-100 text-orange-700'
                     }`}>
-                      +{dayBookings.length - 1} more
+                      +{dayBookings.length - 2} more bookings
                     </div>
                   )}
                   
@@ -260,16 +271,17 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                         <Button
                           size="sm"
                           variant="outline"
-                          className={`text-xs w-full h-6 p-0 ${
+                          className={`text-xs w-full h-8 px-2 py-1 font-medium ${
                             isSelectedDate 
                               ? 'bg-white/20 text-white border-white/30 hover:bg-white/30' 
-                              : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                              : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300'
                           }`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleQuickBook(dateString, nextSlot, selectedBarber || undefined);
                           }}
                         >
+                          <Clock className="w-3 h-3 mr-1" />
                           Book {formatTime(nextSlot)}
                         </Button>
                       );
