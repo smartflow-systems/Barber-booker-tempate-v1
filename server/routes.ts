@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertBookingSchema, insertClientSchema } from "@shared/schema";
+import { insertBookingSchema, insertClientSchema, insertGoogleTokenSchema } from "@shared/schema";
+import { googleAuthService } from "./auth/google";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -95,6 +96,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating client:", error);
       res.status(500).json({ error: "Failed to update client" });
+    }
+  });
+
+  // Google OAuth2 routes
+  app.get("/auth/google", async (req, res) => {
+    try {
+      const userId = req.query.userId as string || "admin"; // Default user for testing
+      console.log(`[OAuth] Initiating Google OAuth for user: ${userId}`);
+      
+      const authUrl = googleAuthService.getAuthUrl(userId);
+      console.log(`[OAuth] Generated auth URL: ${authUrl}`);
+      
+      res.redirect(authUrl);
+    } catch (error) {
+      console.error("[OAuth] Error initiating Google auth:", error);
+      res.status(500).json({ 
+        error: "Failed to initiate Google authentication",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.get("/auth/google/callback", async (req, res) => {
+    try {
+      const code = req.query.code as string;
+      const state = req.query.state as string; // This contains the userId
+      const error = req.query.error as string;
+
+      console.log(`[OAuth] Callback received - Code: ${code ? 'present' : 'missing'}, State: ${state}, Error: ${error}`);
+
+      if (error) {
+        console.error(`[OAuth] Authorization error: ${error}`);
+        return res.status(400).json({ error: `Authorization failed: ${error}` });
+      }
+
+      if (!code) {
+        console.error("[OAuth] No authorization code received");
+        return res.status(400).json({ error: "No authorization code received" });
+      }
+
+      if (!state) {
+        console.error("[OAuth] No state parameter received");
+        return res.status(400).json({ error: "No user ID in state parameter" });
+      }
+
+      console.log(`[OAuth] Exchanging code for tokens...`);
+      const tokens = await googleAuthService.exchangeCodeForTokens(code);
+      console.log(`[OAuth] Token exchange successful - Access token: ${tokens.access_token.substring(0, 20)}...`);
+
+      // Store tokens in database
+      const tokenData = {
+        userId: state,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        expiryDate: new Date(tokens.expiry_date)
+      };
+
+      console.log(`[OAuth] Storing tokens for user: ${state}`);
+      
+      // Check if token already exists
+      const existingToken = await storage.getGoogleToken(state);
+      let savedToken;
+      
+      if (existingToken) {
+        console.log(`[OAuth] Updating existing token for user: ${state}`);
+        savedToken = await storage.updateGoogleToken(state, tokenData);
+      } else {
+        console.log(`[OAuth] Creating new token for user: ${state}`);
+        savedToken = await storage.createGoogleToken(tokenData);
+      }
+
+      if (!savedToken) {
+        throw new Error("Failed to save token to database");
+      }
+
+      console.log(`[OAuth] Token successfully stored with ID: ${savedToken.id}`);
+
+      // Test calendar access
+      googleAuthService.setCredentials(
+        tokens.access_token, 
+        tokens.refresh_token, 
+        tokens.expiry_date
+      );
+      
+      const calendarAccessTest = await googleAuthService.testCalendarAccess();
+      console.log(`[OAuth] Calendar access test: ${calendarAccessTest ? 'SUCCESS' : 'FAILED'}`);
+
+      res.json({
+        success: true,
+        message: "Google Calendar integration successful",
+        tokenId: savedToken.id,
+        calendarAccess: calendarAccessTest,
+        expiryDate: new Date(tokens.expiry_date).toISOString()
+      });
+
+    } catch (error) {
+      console.error("[OAuth] Callback error:", error);
+      res.status(500).json({ 
+        error: "Failed to complete Google authentication",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Test Google Calendar connection
+  app.get("/auth/google/test/:userId", async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      console.log(`[OAuth] Testing calendar access for user: ${userId}`);
+      
+      const token = await storage.getGoogleToken(userId);
+      if (!token) {
+        return res.status(404).json({ error: "No Google token found for user" });
+      }
+
+      console.log(`[OAuth] Found token, expires: ${token.expiryDate}`);
+      
+      // Check if token is expired
+      if (new Date() >= token.expiryDate) {
+        console.log(`[OAuth] Token expired, attempting refresh...`);
+        
+        try {
+          const refreshedTokens = await googleAuthService.refreshAccessToken(token.refreshToken);
+          
+          const updatedToken = await storage.updateGoogleToken(userId, {
+            accessToken: refreshedTokens.access_token,
+            expiryDate: new Date(refreshedTokens.expiry_date)
+          });
+
+          if (updatedToken) {
+            token.accessToken = updatedToken.accessToken;
+            token.expiryDate = updatedToken.expiryDate;
+            console.log(`[OAuth] Token refreshed successfully`);
+          }
+        } catch (refreshError) {
+          console.error(`[OAuth] Token refresh failed:`, refreshError);
+          return res.status(401).json({ error: "Token expired and refresh failed" });
+        }
+      }
+
+      googleAuthService.setCredentials(
+        token.accessToken,
+        token.refreshToken,
+        token.expiryDate.getTime()
+      );
+
+      const calendarAccess = await googleAuthService.testCalendarAccess();
+      
+      res.json({
+        success: true,
+        calendarAccess,
+        tokenExpiry: token.expiryDate.toISOString(),
+        userId
+      });
+
+    } catch (error) {
+      console.error("[OAuth] Test error:", error);
+      res.status(500).json({ 
+        error: "Failed to test Google Calendar access",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
