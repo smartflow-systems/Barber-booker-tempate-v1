@@ -13,6 +13,7 @@ import { Calendar, Clock, User, Phone, CalendarCheck, Star, MessageCircle } from
 import { SuccessModal } from "@/components/success-modal";
 import { CalendarView } from "@/components/calendar-view";
 import { BarberProfile } from "@/components/barber-profile";
+import { ProgressIndicator } from "@/components/progress-indicator";
 import { useToast } from "@/hooks/use-toast";
 import type { Barber, Service } from "@shared/schema";
 
