@@ -56,9 +56,9 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Force port 5000 to match workflow configuration
+  // Use PORT environment variable for production deployment
   // this serves both the API and the client.
-  const port = 5000;
+  const port = parseInt(process.env.PORT || '5000', 10);
   
   server.listen({
     port,

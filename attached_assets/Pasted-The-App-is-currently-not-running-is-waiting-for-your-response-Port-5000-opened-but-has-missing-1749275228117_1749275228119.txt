@@ -1,0 +1,137 @@
+The App is currently not running.
+is waiting for your response.
+Port :5000 opened, but has missing configuration.
+Production
+Status
+Gareth deployed about 6 hours ago
+Domain
+https://barber-booker-boweazy123.replit.app
+Type
+Autoscale
+(4 vCPU / 8 GiB RAM / 3 Max)
+See all usage
+15673783
+
+boweazy123
+Gareth
+deployed about 6 hours ago
+11ff09b9
+
+boweazy123
+Gareth
+deployed 1 day ago
+SESSION_SECRET
+••••••••
+DATABASE_URL
+••••••••
+PGDATABASE
+••••••••
+PGHOST
+••••••••
+PGPORT
+••••••••
+PGUSER
+••••••••
+PGPASSWORD
+••••••••
+GOOGLE_CLIENT_ID
+••••••••
+PORT
+••••••••
+GOOGLE_CLIENT_SECRET
+••••••••
+import express, { type Request, Response, NextFunction } from "express";
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
+  // Force port 5000 to match workflow configuration
+  // this serves both the API and the client.
+  const port = 5000;
+  
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
+
+Selection deleted
+modules = ["nodejs-20", "web", "postgresql-16"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+          customerName:  ev.summary ?? "Walk-in",
+          start:         ev.start?.dateTime ?? ev.start?.date!,
+          end:           ev.end?.dateTime   ?? ev.end?.date!,
+          status:        ev.status
+        }
+      });
+    } else {
+      // UPDATE
+      await db.booking.update({
+        where: { id: existing.id },
+        data:  {
+          start:  ev.start?.dateTime ?? ev.start?.date!,
+          end:    ev.end?.dateTime   ?? ev.end?.date!,
+          status: ev.status
+        }
+      });
+    }
+  }
+
+  // Save nextSyncToken for the next webhook ping
+  if (listRes.data.nextSyncToken) {
+    await db.barber.update({
+      where: { id: barber.id },
+      data:  { syncToken: listRes.data.nextSyncToken }
+    });
+  }
+
+  log(`✅ Synced ${listRes.data.items?.length ?? 0} events for barber ${barber.id}`);
+}
+
+/@boweazy123/BarberBooker
