@@ -6,6 +6,11 @@ import { googleAuthService } from "./auth/google";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
   // Get all barbers
   app.get("/api/barbers", async (req, res) => {
     try {
