@@ -1,0 +1,86 @@
+This **404 Page Not Found** error means your server is running, but **your Express app isn’t serving a homepage or static files**—it’s only handling API routes like `/api/bookings`.
+
+---
+
+### Why it happens
+
+* You have API routes (e.g., `/api/bookings`, `/api/barbers`) set up, but you **don’t have a front-end build** (like React/Vite) being served, or
+* The static middleware (e.g., `serveStatic(app)`) isn’t finding your built front-end files, or
+* You haven’t added a default route (`/`) that serves a real page.
+
+---
+
+### **How to fix it (pick what fits your setup):**
+
+#### **A. If you have a React/Vite front-end:**
+
+1. **Make sure you’ve run your build:**
+
+   * From your project’s root, run:
+
+     ```bash
+     npm run build
+     ```
+   * This should create a `dist/` or `build/` folder with your static front-end.
+
+2. **Check your static serving code:**
+   In your server code (e.g. `serveStatic(app)`), make sure it’s actually serving from the right folder:
+
+   ```js
+   import path from "path";
+   app.use(express.static(path.join(__dirname, "../dist")));
+   // or wherever your front-end build files live
+   ```
+
+3. **Catch-all route for client-side routing:**
+
+   ```js
+   app.get("*", (req, res) => {
+     res.sendFile(path.join(__dirname, "../dist/index.html"));
+   });
+   ```
+
+   (Update the path if your build folder is named differently.)
+
+---
+
+#### **B. If you only have the API (no UI yet):**
+
+* That’s normal!
+* You’ll get 404 on `/`, but your API endpoints (like `/api/bookings`) should work.
+
+---
+
+#### **C. Testing the API**
+
+Try visiting:
+
+```
+https://barber-booker-boweazy123.replit.app/api/bookings
+```
+
+If you see JSON, your backend is working.
+
+---
+
+#### **D. If you want to display a landing page for `/`:**
+
+Add this to your server code:
+
+```js
+app.get("/", (req, res) => {
+  res.send("<h1>SmartFlowSystems API is running!</h1><p>Booking endpoints are at /api/*</p>");
+});
+```
+
+---
+
+### **Summary**
+
+* **404 on `/`** just means no front-end or homepage is being served.
+* Your API is live—check with `/api/bookings` or similar.
+* To serve your UI, make sure to build it, serve it statically, and set a catch-all route.
+
+---
+
+Let me know if you want a step-by-step for integrating your React/Vite front-end, or if you’re just testing API endpoints for now!
