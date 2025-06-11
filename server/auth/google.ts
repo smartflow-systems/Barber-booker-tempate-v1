@@ -6,16 +6,8 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 // Use Replit preview URL for development to match OAuth configuration
 const getRedirectUri = () => {
-  // Check if running in Replit environment
-  if (process.env.REPL_ID) {
-    return `https://${process.env.REPL_ID}.${process.env.REPL_OWNER}.replit.dev/auth/google/callback`;
-  }
-  // Fallback for production deployment
-  if (process.env.NODE_ENV === 'production') {
-    return 'https://barber-booker-boweazy123.replit.app/auth/google/callback';
-  }
-  // Local development
-  return 'http://localhost:5000/auth/google/callback';
+  // Always use the permanent Replit domain for consistency
+  return 'https://barber-booker-boweazy123.replit.app/auth/google/callback';
 };
 
 const REDIRECT_URI = getRedirectUri();
