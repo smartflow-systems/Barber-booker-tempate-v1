@@ -205,6 +205,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test OAuth credentials setup
+  app.get("/auth/google/test-credentials", async (req, res) => {
+    try {
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+      
+      if (!clientId || !clientSecret) {
+        return res.json({
+          success: false,
+          error: "Missing OAuth credentials",
+          details: {
+            hasClientId: !!clientId,
+            hasClientSecret: !!clientSecret,
+            clientIdLength: clientId ? clientId.length : 0,
+            clientSecretLength: clientSecret ? clientSecret.length : 0
+          }
+        });
+      }
+
+      // Test if we can generate an auth URL (this validates the credentials format)
+      try {
+        const authUrl = googleAuthService.getAuthUrl("test");
+        return res.json({
+          success: true,
+          message: "OAuth credentials are properly configured",
+          details: {
+            hasClientId: true,
+            hasClientSecret: true,
+            clientIdLength: clientId.length,
+            clientSecretLength: clientSecret.length,
+            canGenerateAuthUrl: !!authUrl
+          }
+        });
+      } catch (authError) {
+        return res.json({
+          success: false,
+          error: "Invalid OAuth credentials format",
+          details: {
+            hasClientId: true,
+            hasClientSecret: true,
+            authError: authError instanceof Error ? authError.message : "Unknown error"
+          }
+        });
+      }
+    } catch (error) {
+      console.error("[OAuth] Credentials test error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Failed to test OAuth credentials",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Test Google Calendar connection
   app.get("/auth/google/test/:userId", async (req, res) => {
     try {
