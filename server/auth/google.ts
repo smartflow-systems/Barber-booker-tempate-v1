@@ -6,11 +6,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 // Use Replit preview URL for development to match OAuth configuration
 const getRedirectUri = () => {
-  // Check if running in Replit development environment
-  if (process.env.REPL_ID && process.env.REPL_OWNER) {
-    return `https://${process.env.REPL_ID}.${process.env.REPL_OWNER}.replit.dev/auth/google/callback`;
-  }
-  // Production deployment
+  // Always use the permanent production domain for consistency
   return 'https://barber-booker-boweazy123.replit.app/auth/google/callback';
 };
 
