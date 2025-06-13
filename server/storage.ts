@@ -86,7 +86,7 @@ export class MemStorage implements IStorage {
     this.currentClientId = 1;
     this.currentBookingId = 1;
     this.currentAdminUserId = 1;
-    
+
     // Initialize with default data
     this.initializeDefaultData();
   }
@@ -294,7 +294,7 @@ export class MemStorage implements IStorage {
   async updateClient(id: number, updates: Partial<InsertClient>): Promise<Client | undefined> {
     const client = this.clients.get(id);
     if (!client) return undefined;
-    
+
     const updatedClient: Client = { ...client, ...updates };
     this.clients.set(id, updatedClient);
     return updatedClient;
@@ -354,7 +354,7 @@ export class MemStorage implements IStorage {
   async updateAdminUser(id: number, updates: Partial<InsertAdminUser>): Promise<AdminUser | undefined> {
     const user = this.adminUsers.get(id);
     if (!user) return undefined;
-    
+
     const updatedUser: AdminUser = { ...user, ...updates };
     this.adminUsers.set(id, updatedUser);
     return updatedUser;
