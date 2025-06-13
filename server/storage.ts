@@ -4,16 +4,19 @@ import {
   clients,
   bookings,
   googleTokens,
+  adminUsers,
   type Barber, 
   type Service, 
   type Client,
   type Booking,
   type GoogleToken,
+  type AdminUser,
   type InsertBarber, 
   type InsertService, 
   type InsertClient,
   type InsertBooking,
-  type InsertGoogleToken
+  type InsertGoogleToken,
+  type InsertAdminUser
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -42,6 +45,12 @@ export interface IStorage {
   updateGoogleToken(userId: string, updates: Partial<InsertGoogleToken>): Promise<GoogleToken | undefined>;
   deleteGoogleToken(userId: string): Promise<boolean>;
 
+  // Admin Users
+  getAdminUser(id: number): Promise<AdminUser | undefined>;
+  getAdminUserByUsername(username: string): Promise<AdminUser | undefined>;
+  createAdminUser(user: InsertAdminUser): Promise<AdminUser>;
+  updateAdminUser(id: number, updates: Partial<InsertAdminUser>): Promise<AdminUser | undefined>;
+
   // Bookings
   getBookings(): Promise<Booking[]>;
   getBooking(id: number): Promise<Booking | undefined>;
@@ -58,20 +67,24 @@ export class MemStorage implements IStorage {
   private services: Map<number, Service>;
   private clients: Map<number, Client>;
   private bookings: Map<number, Booking>;
+  private adminUsers: Map<number, AdminUser>;
   private currentBarberId: number;
   private currentServiceId: number;
   private currentClientId: number;
   private currentBookingId: number;
+  private currentAdminUserId: number;
 
   constructor() {
     this.barbers = new Map();
     this.services = new Map();
     this.clients = new Map();
     this.bookings = new Map();
+    this.adminUsers = new Map();
     this.currentBarberId = 1;
     this.currentServiceId = 1;
     this.currentClientId = 1;
     this.currentBookingId = 1;
+    this.currentAdminUserId = 1;
     
     // Initialize with default data
     this.initializeDefaultData();
@@ -528,6 +541,34 @@ export class DatabaseStorage implements IStorage {
   async deleteGoogleToken(userId: string): Promise<boolean> {
     const result = await db.delete(googleTokens).where(eq(googleTokens.userId, userId));
     return (result.rowCount || 0) > 0;
+  }
+
+  // Admin User methods
+  async getAdminUser(id: number): Promise<AdminUser | undefined> {
+    const [user] = await db.select().from(adminUsers).where(eq(adminUsers.id, id));
+    return user || undefined;
+  }
+
+  async getAdminUserByUsername(username: string): Promise<AdminUser | undefined> {
+    const [user] = await db.select().from(adminUsers).where(eq(adminUsers.username, username));
+    return user || undefined;
+  }
+
+  async createAdminUser(insertUser: InsertAdminUser): Promise<AdminUser> {
+    const [user] = await db
+      .insert(adminUsers)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateAdminUser(id: number, updates: Partial<InsertAdminUser>): Promise<AdminUser | undefined> {
+    const [user] = await db
+      .update(adminUsers)
+      .set(updates)
+      .where(eq(adminUsers.id, id))
+      .returning();
+    return user || undefined;
   }
 }
 
