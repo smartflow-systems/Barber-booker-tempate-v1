@@ -57,7 +57,8 @@ export class GoogleAuthService {
       scope: SCOPES,
       state: userId, // Pass user ID as state parameter
       prompt: 'consent', // Force consent screen to get refresh token
-      include_granted_scopes: true
+      include_granted_scopes: true,
+      response_type: 'code'
     });
   }
 
@@ -74,6 +75,9 @@ export class GoogleAuthService {
       console.log('[OAuth] Redirect URI being used:', REDIRECT_URI);
       console.log('[OAuth] Client ID configured:', GOOGLE_CLIENT_ID ? 'Yes' : 'No');
       console.log('[OAuth] Client Secret configured:', GOOGLE_CLIENT_SECRET ? 'Yes' : 'No');
+      
+      // Set the redirect URI explicitly before token exchange
+      this.oauth2Client.redirectUri = REDIRECT_URI;
       
       const { tokens } = await this.oauth2Client.getToken(code);
       
@@ -97,6 +101,15 @@ export class GoogleAuthService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       console.error('[OAuth] Detailed token exchange error:', error);
+      
+      // Provide more specific error messages
+      if (errorMessage.includes('invalid_grant')) {
+        throw new Error('OAuth authorization expired or invalid. Please try the authorization flow again.');
+      }
+      if (errorMessage.includes('redirect_uri_mismatch')) {
+        throw new Error('Redirect URI mismatch. Please check your Google OAuth configuration.');
+      }
+      
       throw new Error(`Token exchange failed: ${errorMessage}`);
     }
   }
