@@ -359,6 +359,15 @@ export class MemStorage implements IStorage {
     this.adminUsers.set(id, updatedUser);
     return updatedUser;
   }
+
+  async updateBooking(id: number, updates: Partial<InsertBooking>): Promise<Booking | undefined> {
+    const booking = this.bookings.get(id);
+    if (!booking) return undefined;
+
+    const updatedBooking: Booking = { ...booking, ...updates };
+    this.bookings.set(id, updatedBooking);
+    return updatedBooking;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
