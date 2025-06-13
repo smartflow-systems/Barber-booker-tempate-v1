@@ -363,91 +363,103 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async initializeDefaultData() {
-    // Check if barbers already exist
-    const existingBarbers = await this.getBarbers();
-    if (existingBarbers.length > 0) return;
-
-    // Initialize default admin users first
     try {
-      const existingAdmin = await this.getAdminUserByUsername('john_barber');
-      if (!existingAdmin) {
-        const hashedPassword = await require('bcrypt').hash('barber123', 10);
-        await this.createAdminUser({
-          username: 'john_barber',
-          password: hashedPassword,
-          barberId: 1,
-          role: 'barber',
-          isActive: true
-        });
+      // Check if barbers already exist
+      const existingBarbers = await this.getBarbers();
+      if (existingBarbers.length > 0) return;
+
+      // Initialize default admin users first
+      try {
+        const existingAdmin = await this.getAdminUserByUsername('john_barber');
+        if (!existingAdmin) {
+          const hashedPassword = await require('bcrypt').hash('barber123', 10);
+          await this.createAdminUser({
+            username: 'john_barber',
+            password: hashedPassword,
+            barberId: 1,
+            role: 'barber',
+            isActive: true
+          });
+        }
+      } catch (error) {
+        console.error('Error creating default admin user:', error);
+      }
+
+      // Create default barbers
+      const defaultBarbers: InsertBarber[] = [
+        {
+          name: "John Doe",
+          title: "Senior Barber",
+          experience: "8 years exp",
+          rating: "4.9 (127 reviews)",
+          avatar: "JD"
+        },
+        {
+          name: "Mike Smith",
+          title: "Master Barber",
+          experience: "12 years exp",
+          rating: "4.8 (203 reviews)",
+          avatar: "MS"
+        },
+        {
+          name: "Alex Johnson",
+          title: "Specialist",
+          experience: "6 years exp",
+          rating: "4.7 (89 reviews)",
+          avatar: "AJ"
+        },
+        {
+          name: "Carlos Rivera",
+          title: "Style Expert",
+          experience: "10 years exp",
+          rating: "4.9 (156 reviews)",
+          avatar: "CR"
+        }
+      ];
+
+      // Create default services
+      const defaultServices: InsertService[] = [
+        {
+          name: "Classic Haircut",
+          duration: 30,
+          price: 2500 // $25.00
+        },
+        {
+          name: "Haircut + Beard",
+          duration: 45,
+          price: 4000 // $40.00
+        },
+        {
+          name: "Premium Package",
+          duration: 60,
+          price: 6000 // $60.00
+        },
+        {
+          name: "Beard Trim",
+          duration: 20,
+          price: 1500 // $15.00
+        }
+      ];
+
+      // Initialize barbers with error handling
+      for (const barber of defaultBarbers) {
+        try {
+          await this.createBarber(barber);
+        } catch (error) {
+          console.error('Error creating barber:', barber.name, error);
+        }
+      }
+
+      // Initialize services with error handling
+      for (const service of defaultServices) {
+        try {
+          await this.createService(service);
+        } catch (error) {
+          console.error('Error creating service:', service.name, error);
+        }
       }
     } catch (error) {
-      console.error('Error creating default admin user:', error);
-    }
-
-    // Create default barbers
-    const defaultBarbers: InsertBarber[] = [
-      {
-        name: "John Doe",
-        title: "Senior Barber",
-        experience: "8 years exp",
-        rating: "4.9 (127 reviews)",
-        avatar: "JD"
-      },
-      {
-        name: "Mike Smith",
-        title: "Master Barber",
-        experience: "12 years exp",
-        rating: "4.8 (203 reviews)",
-        avatar: "MS"
-      },
-      {
-        name: "Alex Johnson",
-        title: "Specialist",
-        experience: "6 years exp",
-        rating: "4.7 (89 reviews)",
-        avatar: "AJ"
-      },
-      {
-        name: "Carlos Rivera",
-        title: "Style Expert",
-        experience: "10 years exp",
-        rating: "4.9 (156 reviews)",
-        avatar: "CR"
-      }
-    ];
-
-    // Create default services
-    const defaultServices: InsertService[] = [
-      {
-        name: "Classic Haircut",
-        duration: 30,
-        price: 2500 // $25.00
-      },
-      {
-        name: "Haircut + Beard",
-        duration: 45,
-        price: 4000 // $40.00
-      },
-      {
-        name: "Premium Package",
-        duration: 60,
-        price: 6000 // $60.00
-      },
-      {
-        name: "Beard Trim",
-        duration: 20,
-        price: 1500 // $15.00
-      }
-    ];
-
-    // Initialize barbers
-    for (const barber of defaultBarbers) {
-      await this.createBarber(barber);
-    }
-
-    // Initialize services
-    for (const service of defaultServices) {
-      await this.createService(service);
+      console.error('Error in initializeDefaultData:', error);
     }
   }
 

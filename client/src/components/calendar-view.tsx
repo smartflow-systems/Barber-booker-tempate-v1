@@ -203,7 +203,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
         <div className="grid grid-cols-7 gap-1">
           {calendarDays.map((day, index) => {
             if (day === null) {
-              return <div key={index} className="p-2 h-24"></div>;
+              return <div key={`empty-${index}`} className="p-2 h-24"></div>;
             }
             
             const dayBookings = getBookingsForDate(day);
