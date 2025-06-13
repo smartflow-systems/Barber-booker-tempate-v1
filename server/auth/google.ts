@@ -59,6 +59,7 @@ export class GoogleAuthService {
       prompt: 'consent', // Force consent screen to get refresh token
       include_granted_scopes: true,
       response_type: 'code'
+      // Removed code_challenge and code_challenge_method to avoid PKCE
     });
   }
 
@@ -76,10 +77,17 @@ export class GoogleAuthService {
       console.log('[OAuth] Client ID configured:', GOOGLE_CLIENT_ID ? 'Yes' : 'No');
       console.log('[OAuth] Client Secret configured:', GOOGLE_CLIENT_SECRET ? 'Yes' : 'No');
       
-      // Set the redirect URI explicitly before token exchange
-      this.oauth2Client.redirectUri = REDIRECT_URI;
+      // Create a fresh OAuth2 client instance to ensure clean state
+      const oauth2Client = new google.auth.OAuth2(
+        GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET,
+        REDIRECT_URI
+      );
       
-      const { tokens } = await this.oauth2Client.getToken(code);
+      const { tokens } = await oauth2Client.getToken({
+        code: code,
+        // Don't include code_verifier or any PKCE parameters
+      });
       
       console.log('[OAuth] Token exchange response:', {
         has_access_token: !!tokens.access_token,
@@ -92,6 +100,9 @@ export class GoogleAuthService {
       if (!tokens.access_token || !tokens.expiry_date) {
         throw new Error('Missing required tokens in Google response');
       }
+
+      // Update the instance client with new credentials
+      this.oauth2Client.setCredentials(tokens);
 
       return {
         access_token: tokens.access_token,
