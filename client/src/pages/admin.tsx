@@ -12,7 +12,7 @@ import {
   CheckCircle, 
   AlertCircle, 
   LogOut, 
-  Sync, 
+  RotateCw, 
   Settings,
   Users,
   Clock,
@@ -40,27 +40,27 @@ export default function Admin() {
   const queryClient = useQueryClient();
 
   // Get current admin user
-  const { data: adminUser, isLoading: userLoading } = useQuery({
+  const { data: adminUser, isLoading: userLoading } = useQuery<AdminUser>({
     queryKey: ["/api/admin/user"],
     retry: false,
   });
 
   // Get Google Calendar connection status
-  const { data: googleToken, isLoading: tokenLoading } = useQuery({
+  const { data: googleToken, isLoading: tokenLoading } = useQuery<GoogleToken>({
     queryKey: ["/api/admin/google-token"],
     retry: false,
   });
 
   // Get recent bookings
-  const { data: bookings = [] } = useQuery({
+  const { data: bookings = [] } = useQuery<any[]>({
     queryKey: ["/api/bookings"],
   });
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest("/api/admin/logout", {
-        method: "POST",
-      });
+      const response = await fetch("/api/admin/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Logout failed");
+      return response.json();
     },
     onSuccess: () => {
       window.location.href = "/admin/login";
@@ -68,16 +68,16 @@ export default function Admin() {
   });
 
   const handleGoogleConnect = () => {
-    if (!adminUser?.id) return;
+    if (!(adminUser as any)?.id) return;
     setIsConnecting(true);
-    window.location.href = `/auth/google?userId=${adminUser.id}`;
+    window.location.href = `/auth/google?userId=${(adminUser as any).id}`;
   };
 
   const handleDisconnectGoogle = async () => {
     try {
-      await apiRequest("/api/admin/google-disconnect", {
-        method: "DELETE",
-      });
+      const response = await fetch("/api/admin/google-disconnect", { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to disconnect");
+      
       toast({
         title: "Calendar disconnected",
         description: "Google Calendar has been disconnected from your account",
@@ -109,9 +109,9 @@ export default function Admin() {
   }
 
   const isCalendarConnected = !!googleToken;
-  const todayBookings = bookings.filter((booking: any) => 
+  const todayBookings = Array.isArray(bookings) ? bookings.filter((booking: any) => 
     booking.date === new Date().toISOString().split('T')[0]
-  );
+  ) : [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -196,7 +196,7 @@ export default function Admin() {
                         Disconnect
                       </Button>
                       <Button variant="outline">
-                        <Sync className="h-4 w-4 mr-2" />
+                        <RotateCw className="h-4 w-4 mr-2" />
                         Sync Now
                       </Button>
                     </div>
