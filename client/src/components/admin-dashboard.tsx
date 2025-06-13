@@ -250,6 +250,17 @@ export function AdminDashboard() {
                 Connect Google Calendar
               </Button>
             </div>
+            <div className="bg-blue-100 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-800 mb-2">Setup Instructions:</h4>
+              <ol className="text-sm text-blue-700 space-y-1">
+                <li>1. Go to Google Cloud Console {'->'} APIs & Services {'->'} Credentials</li>
+                <li>2. Update your OAuth redirect URI to:</li>
+                <li className="font-mono text-xs bg-blue-50 p-1 rounded break-all">
+                  https://6c123100-69fa-459d-ab79-27598b38ceb3-00-jozcq38yiyhf.worf.replit.dev/auth/google/callback
+                </li>
+                <li>3. Click "Connect Google Calendar" after updating</li>
+              </ol>
+            </div>
             <div className="bg-green-100 border border-green-200 rounded-lg p-4">
               <h4 className="font-medium text-green-800 mb-2">Benefits of Calendar Integration:</h4>
               <ul className="text-sm text-green-700 space-y-1">

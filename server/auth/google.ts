@@ -4,10 +4,21 @@ import type { OAuth2Client } from 'google-auth-library';
 // Google OAuth2 configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-// Use Replit preview URL for development to match OAuth configuration
+// Use dynamic redirect URI based on environment
 const getRedirectUri = () => {
-  // Always use the permanent production domain for consistency
-  return 'https://barber-booker-boweazy123.replit.app/auth/google/callback';
+  // Use environment variable if available, otherwise construct from REPLIT_DOMAINS
+  if (process.env.REDIRECT_URI) {
+    return process.env.REDIRECT_URI;
+  }
+  
+  // For Replit deployment, use the first domain from REPLIT_DOMAINS
+  if (process.env.REPLIT_DOMAINS) {
+    const domain = process.env.REPLIT_DOMAINS.split(',')[0];
+    return `https://${domain}/auth/google/callback`;
+  }
+  
+  // Fallback for local development
+  return 'http://localhost:5000/auth/google/callback';
 };
 
 const REDIRECT_URI = getRedirectUri();
@@ -57,20 +68,34 @@ export class GoogleAuthService {
     expiry_date: number;
   }> {
     try {
+      console.log('[OAuth] Attempting to exchange code for tokens');
+      console.log('[OAuth] Redirect URI being used:', REDIRECT_URI);
+      console.log('[OAuth] Client ID configured:', GOOGLE_CLIENT_ID ? 'Yes' : 'No');
+      console.log('[OAuth] Client Secret configured:', GOOGLE_CLIENT_SECRET ? 'Yes' : 'No');
+      
       const { tokens } = await this.oauth2Client.getToken(code);
       
-      if (!tokens.access_token || !tokens.refresh_token || !tokens.expiry_date) {
-        throw new Error('Invalid token response from Google');
+      console.log('[OAuth] Token exchange response:', {
+        has_access_token: !!tokens.access_token,
+        has_refresh_token: !!tokens.refresh_token,
+        has_expiry_date: !!tokens.expiry_date,
+        token_type: tokens.token_type,
+        scope: tokens.scope
+      });
+      
+      if (!tokens.access_token || !tokens.expiry_date) {
+        throw new Error('Missing required tokens in Google response');
       }
 
       return {
         access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
+        refresh_token: tokens.refresh_token || '',
         expiry_date: tokens.expiry_date
       };
     } catch (error) {
-      console.error('Error exchanging code for tokens:', error);
-      throw new Error('Failed to exchange authorization code for tokens');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('[OAuth] Detailed token exchange error:', error);
+      throw new Error(`Token exchange failed: ${errorMessage}`);
     }
   }
 
