@@ -13,7 +13,7 @@ const getRedirectUri = () => {
   
   // For Replit deployment, use the first domain from REPLIT_DOMAINS
   if (process.env.REPLIT_DOMAINS) {
-    const domain = process.env.REPLIT_DOMAINS.split(',')[0];
+    const domain = process.env.REPLIT_DOMAINS.split(',')[0].trim();
     return `https://${domain}/auth/google/callback`;
   }
   
@@ -40,6 +40,7 @@ export class GoogleAuthService {
       return;
     }
 
+    console.log('[OAuth] Initializing with redirect URI:', REDIRECT_URI);
     this.oauth2Client = new google.auth.OAuth2(
       GOOGLE_CLIENT_ID,
       GOOGLE_CLIENT_SECRET,
@@ -55,7 +56,8 @@ export class GoogleAuthService {
       access_type: 'offline',
       scope: SCOPES,
       state: userId, // Pass user ID as state parameter
-      prompt: 'consent' // Force consent screen to get refresh token
+      prompt: 'consent', // Force consent screen to get refresh token
+      include_granted_scopes: true
     });
   }
 
