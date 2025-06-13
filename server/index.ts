@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import { createServer } from "http";
 import { registerRoutes } from "./routes/index";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -56,10 +57,22 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Port configuration - use port 5000 for workflow compatibility
-  const port = 5000;
+  // Port configuration - listen on both ports for compatibility
+  const replitPort = parseInt(process.env.PORT || "3000");
+  const workflowPort = 5000;
   
-  server.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
+  // Start on Replit's expected port
+  server.listen(replitPort, "0.0.0.0", () => {
+    log(`serving on port ${replitPort}`);
   });
+  
+  // Also listen on workflow port if different
+  if (replitPort !== workflowPort) {
+    const workflowApp = express();
+    workflowApp.use(app);
+    const workflowServer = createServer(workflowApp);
+    workflowServer.listen(workflowPort, "0.0.0.0", () => {
+      log(`workflow port serving on ${workflowPort}`);
+    });
+  }
 })();
