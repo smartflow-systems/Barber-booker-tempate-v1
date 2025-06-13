@@ -1,11 +1,110 @@
 import express, { type Express } from "express";
+import session from "express-session";
+import bcrypt from "bcrypt";
 import { createServer } from "http";
 import { storage } from "../storage";
 import { googleAuthService } from "../auth/google";
-import { insertBookingSchema, insertClientSchema, insertServiceSchema, insertBarberSchema } from "../../shared/schema";
+import { insertBookingSchema, insertClientSchema, insertServiceSchema, insertBarberSchema, insertAdminUserSchema } from "../../shared/schema";
+import connectPgSimple from "connect-pg-simple";
 
 export async function registerRoutes(app: Express) {
   const server = createServer(app);
+
+  // Session configuration
+  const pgSession = connectPgSimple(session);
+  app.use(session({
+    store: new pgSession({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true,
+    }),
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  }));
+
+  // Auth middleware
+  const requireAuth = (req: any, res: any, next: any) => {
+    if (!req.session.adminUser) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    next();
+  };
+
+  // Admin Authentication Routes
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      const user = await storage.getAdminUserByUsername(username);
+      if (!user || !user.isActive) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Update last login
+      await storage.updateAdminUser(user.id, { lastLogin: new Date() });
+
+      // Store user in session
+      req.session.adminUser = user;
+      
+      res.json({ success: true, user: { id: user.id, username: user.username, role: user.role } });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  app.post("/api/admin/logout", requireAuth, async (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Logout failed" });
+      }
+      res.json({ success: true });
+    });
+  });
+
+  app.get("/api/admin/user", requireAuth, async (req, res) => {
+    const user = req.session.adminUser;
+    res.json({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      barberId: user.barberId,
+      isActive: user.isActive,
+      lastLogin: user.lastLogin
+    });
+  });
+
+  app.get("/api/admin/google-token", requireAuth, async (req, res) => {
+    try {
+      const user = req.session.adminUser;
+      const token = await storage.getGoogleToken(user.id.toString());
+      res.json(token);
+    } catch (error) {
+      console.error("Error fetching Google token:", error);
+      res.status(500).json({ error: "Failed to fetch Google token" });
+    }
+  });
+
+  app.delete("/api/admin/google-disconnect", requireAuth, async (req, res) => {
+    try {
+      const user = req.session.adminUser;
+      await storage.deleteGoogleToken(user.id.toString());
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error disconnecting Google:", error);
+      res.status(500).json({ error: "Failed to disconnect Google" });
+    }
+  });
 
   // Barbers
   app.get("/api/barbers", async (_req, res) => {

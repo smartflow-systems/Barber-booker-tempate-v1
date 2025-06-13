@@ -321,6 +321,39 @@ export class MemStorage implements IStorage {
   async deleteGoogleToken(userId: string): Promise<boolean> {
     throw new Error("Google tokens not supported in memory storage");
   }
+
+  // Admin User methods (not implemented for MemStorage)
+  async getAdminUser(id: number): Promise<AdminUser | undefined> {
+    return this.adminUsers.get(id);
+  }
+
+  async getAdminUserByUsername(username: string): Promise<AdminUser | undefined> {
+    return Array.from(this.adminUsers.values()).find(user => user.username === username);
+  }
+
+  async createAdminUser(insertUser: InsertAdminUser): Promise<AdminUser> {
+    const id = this.currentAdminUserId++;
+    const user: AdminUser = { 
+      ...insertUser,
+      id,
+      barberId: insertUser.barberId ?? null,
+      role: insertUser.role ?? 'barber',
+      isActive: insertUser.isActive ?? true,
+      createdAt: new Date(),
+      lastLogin: null
+    };
+    this.adminUsers.set(id, user);
+    return user;
+  }
+
+  async updateAdminUser(id: number, updates: Partial<InsertAdminUser>): Promise<AdminUser | undefined> {
+    const user = this.adminUsers.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser: AdminUser = { ...user, ...updates };
+    this.adminUsers.set(id, updatedUser);
+    return updatedUser;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -333,6 +366,23 @@ export class DatabaseStorage implements IStorage {
     // Check if barbers already exist
     const existingBarbers = await this.getBarbers();
     if (existingBarbers.length > 0) return;
+
+    // Initialize default admin users first
+    try {
+      const existingAdmin = await this.getAdminUserByUsername('john_barber');
+      if (!existingAdmin) {
+        const hashedPassword = await require('bcrypt').hash('barber123', 10);
+        await this.createAdminUser({
+          username: 'john_barber',
+          password: hashedPassword,
+          barberId: 1,
+          role: 'barber',
+          isActive: true
+        });
+      }
+    } catch (error) {
+      console.error('Error creating default admin user:', error);
+    }
 
     // Create default barbers
     const defaultBarbers: InsertBarber[] = [
