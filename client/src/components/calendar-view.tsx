@@ -152,11 +152,11 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm w-full max-w-full overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-600 border-b border-slate-600/50 rounded-t-lg">
+    <Card className="shadow-xl border-0 bg-card backdrop-blur-sm w-full max-w-full overflow-hidden">
+      <CardHeader className="bg-muted border-b border-border rounded-t-lg">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <CardTitle className="text-lg sm:text-xl text-white flex items-center">
-            <Calendar className="text-blue-600 mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+          <CardTitle className="text-lg sm:text-xl text-card-foreground flex items-center">
+            <Calendar className="text-primary mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             <span className="truncate">Booking Calendar</span>
           </CardTitle>
           <div className="flex items-center space-x-1 sm:space-x-2">
@@ -164,25 +164,25 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
               variant="ghost" 
               size="sm" 
               onClick={() => navigateMonth(-1)}
-              className="hover:bg-blue-100 h-8 w-8 p-0"
+              className="hover:bg-accent text-card-foreground h-8 w-8 p-0"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm sm:text-lg font-semibold text-slate-900 min-w-[120px] sm:min-w-[160px] text-center px-1">
+            <span className="text-sm sm:text-lg font-semibold text-card-foreground min-w-[120px] sm:min-w-[160px] text-center px-1">
               {monthNames[month]} {year}
             </span>
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => navigateMonth(1)}
-              className="hover:bg-blue-100 h-8 w-8 p-0"
+              className="hover:bg-accent text-card-foreground h-8 w-8 p-0"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
         {selectedBarber && (
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted-foreground">
             Showing bookings for: {getBarberName(selectedBarber)}
           </p>
         )}
@@ -192,7 +192,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {dayNames.map(day => (
-            <div key={day} className="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-slate-600">
+            <div key={day} className="p-1 sm:p-2 text-center text-xs sm:text-sm font-medium text-card-foreground">
               <span className="hidden sm:inline">{day}</span>
               <span className="sm:hidden">{day.slice(0, 1)}</span>
             </div>
@@ -217,20 +217,20 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                 key={day}
                 onClick={() => handleDateClick(day)}
                 className={`
-                  p-1 sm:p-3 min-h-16 sm:min-h-32 border border-slate-200 rounded-lg cursor-pointer transition-all duration-200 overflow-hidden
+                  p-1 sm:p-3 min-h-16 sm:min-h-32 border border-border rounded-lg cursor-pointer transition-all duration-200 overflow-hidden
                   ${isSelectedDate 
                     ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white border-blue-500 shadow-lg' 
                     : pastDate
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                    ? 'bg-muted/50 text-muted-foreground cursor-not-allowed'
                     : todayClass
-                    ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-300 hover:bg-gradient-to-br hover:from-green-100 hover:to-emerald-100'
+                    ? 'bg-gradient-to-br from-green-200 to-emerald-200 border-green-400 hover:bg-gradient-to-br hover:from-green-300 hover:to-emerald-300 text-foreground'
                     : dayBookings.length > 0
-                    ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 hover:bg-gradient-to-br hover:from-orange-100 hover:to-amber-100'
-                    : 'bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300'
+                    ? 'bg-gradient-to-br from-orange-200 to-amber-200 border-orange-300 hover:bg-gradient-to-br hover:from-orange-300 hover:to-amber-300 text-foreground'
+                    : 'bg-muted hover:bg-secondary hover:border-primary/50 text-card-foreground'
                   }
                 `}
               >
-                <div className={`text-sm font-semibold ${isSelectedDate ? 'text-white' : todayClass ? 'text-green-700' : 'text-slate-900'}`}>
+                <div className={`text-sm font-semibold ${isSelectedDate ? 'text-white' : todayClass ? 'text-green-800' : 'text-card-foreground'}`}>
                   {day}
                 </div>
                 
@@ -242,7 +242,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                       className={`text-xs px-1 sm:px-2 py-1 rounded-md truncate ${
                         isSelectedDate 
                           ? 'bg-white/20 text-white' 
-                          : 'bg-blue-100 text-blue-800'
+                          : 'bg-blue-600 text-white'
                       }`}
                       title={`${formatTime(booking.time)} - ${booking.customerName} (${getServiceName(booking.serviceId)})`}
                     >

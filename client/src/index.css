@@ -4,19 +4,19 @@
 
 :root {
   --background: 225 15% 97%; /* #f8fafc */
-  --foreground: 215 25% 27%; /* #334155 */
-  --muted: 210 20% 94%; /* #e2e8f0 */
-  --muted-foreground: 215 16% 47%; /* #64748b */
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 25% 27%;
-  --card: 0 0% 100%;
-  --card-foreground: 215 25% 27%;
-  --border: 215 28% 90%; /* #cbd5e1 */
-  --input: 215 28% 90%;
+  --foreground: 215 25% 15%; /* #1f2937 - darker for better contrast */
+  --muted: 215 20% 85%; /* #d1d5db - gray instead of white */
+  --muted-foreground: 215 25% 25%; /* #374151 - darker for better contrast */
+  --popover: 215 20% 88%; /* #e5e7eb - gray background */
+  --popover-foreground: 215 25% 15%;
+  --card: 215 20% 88%; /* #e5e7eb - gray cards */
+  --card-foreground: 215 25% 15%; /* #1f2937 - dark text */
+  --border: 215 28% 75%; /* #9ca3af - darker border */
+  --input: 215 20% 88%; /* #e5e7eb - gray input */
   --primary: 215 84% 34%; /* #1e40af */
   --primary-foreground: 0 0% 98%;
-  --secondary: 210 20% 94%;
-  --secondary-foreground: 215 25% 27%;
+  --secondary: 215 20% 85%; /* #d1d5db - gray secondary */
+  --secondary-foreground: 215 25% 15%; /* #1f2937 - dark text */
   --accent: 142 76% 36%; /* #059669 */
   --accent-foreground: 0 0% 98%;
   --destructive: 0 84.2% 60.2%;
@@ -27,21 +27,21 @@
 
 .dark {
   --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
+  --foreground: 0 0% 95%; /* brighter for better contrast */
+  --muted: 240 5% 25%; /* lighter gray for panels */
+  --muted-foreground: 240 5% 85%; /* much brighter for visibility */
+  --popover: 240 5% 25%; /* gray popover background */
+  --popover-foreground: 0 0% 95%;
+  --card: 240 5% 25%; /* gray cards instead of very dark */
+  --card-foreground: 0 0% 95%; /* bright text */
+  --border: 240 5% 40%; /* lighter borders */
+  --input: 240 5% 25%; /* gray inputs */
   --primary: 207 90% 54%;
   --primary-foreground: 211 100% 99%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
+  --secondary: 240 5% 25%; /* gray secondary */
+  --secondary-foreground: 0 0% 95%; /* bright text */
+  --accent: 240 5% 25%;
+  --accent-foreground: 0 0% 95%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
   --ring: 240 4.9% 83.9%;
