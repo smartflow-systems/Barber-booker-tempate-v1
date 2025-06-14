@@ -232,7 +232,7 @@ export async function registerRoutes(app: Express) {
 });
 
   // Test email endpoint
-  app.post("/api/test-email", async (req: Request, res: Response) => {
+  app.post("/api/test-email", async (req, res) => {
     try {
       const { email, message } = req.body;
       
