@@ -133,7 +133,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook, onTime
   };
 
   const handleQuickBook = (date: string, time: string, barberId?: number) => {
-    onQuickBook?.(date, barberId);
+    onQuickBook?.(date, time, barberId);
     // Scroll to booking form and auto-fill
     const bookingForm = document.querySelector('[data-booking-form]');
     if (bookingForm) {
