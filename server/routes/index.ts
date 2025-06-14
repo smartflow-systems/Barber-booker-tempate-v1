@@ -289,35 +289,13 @@ export async function registerRoutes(app: Express) {
 
   // POST /api/bookings - Create a new booking
   app.post("/api/bookings", async (req, res) => {
-  try {
-    const bookingData = insertBookingSchema.parse(req.body);
-    const booking = await storage.createBooking(bookingData);
-
-    const message = await generateBookingMessage(
-      booking.customerName,
-      booking.date,
-      booking.time
-    );
-
-    if (booking.customerEmail) {
-      await sendEmailConfirmation(booking.customerEmail, message);
-    }
-
-    res.json({ ...booking, aiMessage: message });
-  } catch (error) {
-    console.error("Error creating booking:", error);
-    res.status(400).json({ error: "Failed to create booking" });
-  }
-});
-.post("/api/bookings", async (req, res) => {
     try {
       const bookingData = insertBookingSchema.parse(req.body);
       const booking = await storage.createBooking(bookingData);
-
-      // Create Google Calendar event after successful booking creation
       await createCalendarEvent(booking);
-
-      res.json(booking);
+      const message = await generateBookingMessage(booking.customerName, booking.date, booking.time);
+      if (booking.customerEmail) await sendEmailConfirmation(booking.customerEmail, message);
+      res.json({ ...booking, aiMessage: message });
     } catch (error) {
       console.error("Error creating booking:", error);
       res.status(400).json({ error: "Failed to create booking" });

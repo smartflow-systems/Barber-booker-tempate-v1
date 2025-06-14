@@ -73,6 +73,7 @@ export const bookings = pgTable("bookings", {
   clientId: integer("client_id"),
   customerName: text("customer_name").notNull(),
   customerPhone: text("customer_phone").notNull(),
+  customerEmail: text("customer_email"),
   barberId: integer("barber_id").notNull(),
   serviceId: integer("service_id").notNull(),
   date: text("date").notNull(), // YYYY-MM-DD format
