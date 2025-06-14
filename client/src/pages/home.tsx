@@ -55,16 +55,32 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-transparent">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-white/90 backdrop-blur-sm shadow-lg border-b border-slate-200/50 relative overflow-hidden">
+        {/* Decorative barber elements */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-5">
+          <div className="absolute top-2 left-20 text-4xl">✂️</div>
+          <div className="absolute top-3 right-32 text-3xl">💺</div>
+          <div className="absolute bottom-2 left-1/3 text-2xl">🪒</div>
+          <div className="absolute top-1 right-1/4 text-3xl">💈</div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg relative">
                 <i className="fas fa-cut text-white text-sm sm:text-xl"></i>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-800 to-indigo-700 bg-clip-text text-transparent">BarberShop Pro</h1>
-                <p className="text-xs sm:text-sm text-slate-600 font-medium hidden sm:block">Professional Booking System</p>
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-800 to-indigo-700 bg-clip-text text-transparent flex items-center">
+                  Smart Flow Systems 
+                  <span className="ml-2 text-base">💈</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-600 font-medium hidden sm:block flex items-center">
+                  <span className="mr-1">✂️</span>
+                  Professional Barber Management
+                  <span className="ml-1">🪒</span>
+                </p>
               </div>
             </div>
 
@@ -191,19 +207,45 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none">
+          <div className="absolute top-10 left-10 text-6xl animate-bounce">💈</div>
+          <div className="absolute top-20 right-20 text-4xl animate-pulse">✂️</div>
+          <div className="absolute bottom-20 left-1/4 text-5xl animate-bounce delay-1000">🪒</div>
+          <div className="absolute top-1/3 right-1/3 text-3xl animate-pulse delay-500">💺</div>
+          <div className="absolute bottom-10 right-10 text-4xl animate-bounce delay-700">🧴</div>
+        </div>
+        
         {activeView === "booking" && (
-          <>
+          <div className="relative z-10">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-slate-800 mb-2 flex items-center justify-center">
+                <span className="mr-3">✂️</span>
+                Book Your Perfect Cut
+                <span className="ml-3">💈</span>
+              </h2>
+              <p className="text-slate-600 flex items-center justify-center">
+                <span className="mr-2">🪒</span>
+                Experience professional grooming at its finest
+                <span className="ml-2">💺</span>
+              </p>
+            </div>
             <BookingForm onBookingComplete={result => {
               if (result.aiMessage) setAiMessage(result.aiMessage);
             }} />
             {aiMessage && (
-              <div className="mt-6 p-4 bg-slate-100 rounded-lg">
-                <h3 className="font-semibold mb-2">Your Confirmation Message</h3>
-                <p>{aiMessage}</p>
+              <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 relative overflow-hidden">
+                <div className="absolute top-2 right-2 text-2xl opacity-20">💈</div>
+                <div className="absolute bottom-2 left-2 text-xl opacity-20">✂️</div>
+                <h3 className="font-semibold mb-3 text-blue-800 flex items-center">
+                  <span className="mr-2">📝</span>
+                  Your Personalized Confirmation
+                </h3>
+                <p className="text-slate-700 leading-relaxed">{aiMessage}</p>
               </div>
             )}
-          </>
+          </div>
         )}
         {activeView === "admin" && <AdminDashboard />}
         {activeView === "oauth" && <GoogleOAuthSetup />}
