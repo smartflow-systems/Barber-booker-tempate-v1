@@ -223,14 +223,14 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                     : pastDate
                     ? 'bg-muted/50 text-muted-foreground cursor-not-allowed'
                     : todayClass
-                    ? 'bg-gradient-to-br from-green-200 to-emerald-200 border-green-400 hover:bg-gradient-to-br hover:from-green-300 hover:to-emerald-300 text-foreground'
+                    ? 'bg-gradient-to-br from-gray-700 to-gray-800 border-gray-600 hover:bg-gradient-to-br hover:from-gray-600 hover:to-gray-700 text-white'
                     : dayBookings.length > 0
                     ? 'bg-gradient-to-br from-red-200 to-red-200 border-red-300 hover:bg-gradient-to-br hover:from-red-300 hover:to-red-300 text-foreground'
                     : 'bg-muted hover:bg-secondary hover:border-primary/50 text-card-foreground'
                   }
                 `}
               >
-                <div className={`text-sm font-semibold ${isSelectedDate ? 'text-white' : todayClass ? 'text-green-800' : 'text-card-foreground'}`}>
+                <div className={`text-sm font-semibold ${isSelectedDate ? 'text-white' : todayClass ? 'text-white' : 'text-card-foreground'}`}>
                   {day}
                 </div>
                 
@@ -319,7 +319,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
         {/* Legend */}
         <div className="mt-4 flex flex-wrap gap-4 text-xs">
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gradient-to-br from-green-50 to-emerald-50 border border-green-300 rounded"></div>
+            <div className="w-3 h-3 bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600 rounded"></div>
             <span className="text-slate-600">Today</span>
           </div>
           <div className="flex items-center space-x-2">
