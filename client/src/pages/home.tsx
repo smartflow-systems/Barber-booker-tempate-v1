@@ -67,13 +67,17 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center shadow-lg relative">
-                <i className="fas fa-cut text-white text-sm sm:text-xl"></i>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" opacity="0.6"/>
+                  <path d="M8 18L9 21L12 20L15 21L16 18L12 16L8 18Z"/>
+                  <path d="M20 12C20 7.6 17.2 4 13.5 3.2L12.8 5.1C15.4 5.7 17.4 8.1 17.4 11C17.4 14.6 14.6 17.4 11 17.4C9.1 17.4 7.4 16.6 6.2 15.3L4.8 16.7C6.4 18.4 8.6 19.4 11 19.4C15.4 19.4 19 15.8 19 11.4"/>
+                </svg>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
               </div>
-              <div>
+              <div className="ml-4 sm:ml-6">
                 <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-700 bg-clip-text text-transparent flex items-center">
-                  Smart Flow Systems 
+                  BarberFlow Systems 
                   <span className="ml-2 text-base">💈</span>
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-600 font-medium hidden sm:block flex items-center">

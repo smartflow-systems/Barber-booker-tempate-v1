@@ -226,7 +226,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook, onTime
                     : todayClass
                     ? 'bg-gradient-to-br from-gray-700 to-gray-800 border-gray-600 hover:bg-gradient-to-br hover:from-gray-600 hover:to-gray-700 text-white'
                     : dayBookings.length > 0
-                    ? 'bg-gradient-to-br from-red-300 to-red-400 border-red-400 hover:bg-gradient-to-br hover:from-red-400 hover:to-red-500 text-slate-800'
+                    ? 'bg-gradient-to-br from-orange-200 to-orange-300 border-orange-300 hover:bg-gradient-to-br hover:from-orange-300 hover:to-orange-400 text-slate-800'
                     : 'bg-muted hover:bg-secondary hover:border-primary/50 text-card-foreground'
                   }
                 `}
@@ -317,23 +317,23 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook, onTime
           })}
         </div>
         
-        {/* Legend */}
-        <div className="mt-4 flex flex-wrap gap-4 text-xs">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600 rounded"></div>
-            <span className="text-slate-600">Today</span>
+        {/* Subtle Legend */}
+        <div className="mt-3 flex flex-wrap gap-3 text-xs opacity-75 hover:opacity-100 transition-opacity duration-200">
+          <div className="flex items-center space-x-1.5">
+            <div className="w-2.5 h-2.5 bg-gradient-to-br from-gray-700 to-gray-800 border border-gray-600 rounded"></div>
+            <span className="text-slate-500">Today</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-slate-100 rounded"></div>
-            <span className="text-slate-600">Available</span>
+          <div className="flex items-center space-x-1.5">
+            <div className="w-2.5 h-2.5 bg-slate-100 rounded"></div>
+            <span className="text-slate-500">Available</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gradient-to-br from-red-300 to-red-400 rounded"></div>
-            <span className="text-slate-600">Has Bookings</span>
+          <div className="flex items-center space-x-1.5">
+            <div className="w-2.5 h-2.5 bg-gradient-to-br from-orange-200 to-orange-300 rounded"></div>
+            <span className="text-slate-500">Has Bookings</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gradient-to-br from-slate-400 to-slate-500 rounded"></div>
-            <span className="text-slate-600">Selected</span>
+          <div className="flex items-center space-x-1.5">
+            <div className="w-2.5 h-2.5 bg-gradient-to-br from-slate-400 to-slate-500 rounded"></div>
+            <span className="text-slate-500">Selected</span>
           </div>
         </div>
       </CardContent>
