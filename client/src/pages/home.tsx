@@ -67,7 +67,7 @@ export default function Home() {
                 <p className="text-xs sm:text-sm text-slate-600 font-medium hidden sm:block">Professional Booking System</p>
               </div>
             </div>
-            
+
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-6">
               <Button

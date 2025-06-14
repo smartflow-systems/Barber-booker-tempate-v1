@@ -40,7 +40,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
   const [selectedService, setSelectedService] = useState<number | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [bookingDetails, setBookingDetails] = useState<any>(null);
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -82,10 +82,10 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/availability"] });
-      
+
       const selectedBarberData = barbers.find(b => b.id === data.barberId);
       const selectedServiceData = services.find(s => s.id === data.serviceId);
-      
+
       setBookingDetails({
         ...data,
         barberName: selectedBarberData?.name || "",
@@ -93,12 +93,12 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
         servicePrice: selectedServiceData?.price || 0,
       });
       setShowSuccessModal(true);
-      
+
       // Call the callback with AI message if provided
       if (onBookingComplete && (data as any).aiMessage) {
         onBookingComplete({ aiMessage: (data as any).aiMessage });
       }
-      
+
       form.reset();
       setSelectedBarber(null);
       setSelectedDate("");
@@ -184,12 +184,12 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
     // Auto-fill form with calendar selection
     form.setValue("date", date);
     setSelectedDate(date);
-    
+
     if (barberId) {
       setSelectedBarber(barberId);
       form.setValue("barberId", barberId);
     }
-    
+
     // Scroll to booking form
     setTimeout(() => {
       const bookingFormElement = document.querySelector('[data-booking-form]');
@@ -207,7 +207,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
         selectedBarber={selectedBarber}
         onQuickBook={handleQuickBook}
       />
-      
+
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Booking Form */}
         <div className="lg:col-span-2 w-full max-w-full" data-booking-form>
@@ -219,7 +219,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
               </CardTitle>
               <p className="text-slate-300 font-medium text-sm sm:text-base">Select your preferred barber, date, and time slot</p>
             </CardHeader>
-          
+
           <CardContent className="p-3 sm:p-6">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {/* Barber Selection */}
