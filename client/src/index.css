@@ -61,9 +61,10 @@
       radial-gradient(ellipse at top left, rgba(255,255,255,0.3) 0%, transparent 30%),
       radial-gradient(ellipse at bottom right, rgba(255,255,255,0.2) 0%, transparent 25%),
       radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, transparent 50%),
-      linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #0f172a 50%, #1e293b 75%, #0f172a 100%);
+      linear-gradient(135deg, #f8fafc 0%, #e2e8f0 20%, #f1f5f9 40%, #e2e8f0 60%, #f8fafc 100%);
     background-size: 100px 100px, 80px 80px, 800px 800px, 600px 600px, 400px 400px, 100% 100%;
     background-attachment: fixed;
     min-height: 100vh;
+    transition: all 0.5s ease-in-out;
   }
 }

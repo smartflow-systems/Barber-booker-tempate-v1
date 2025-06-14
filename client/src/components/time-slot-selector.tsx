@@ -102,7 +102,7 @@ export function TimeSlotSelector({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800 border-slate-700">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-800/95 via-slate-700/90 to-slate-800/95 border-slate-700 transition-all duration-500">
         <DialogHeader>
           <DialogTitle className="text-xl text-white flex items-center">
             <Calendar className="text-blue-400 mr-2" />
@@ -112,7 +112,7 @@ export function TimeSlotSelector({
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
           {/* Existing Bookings */}
-          <Card className="bg-slate-700/50 border-slate-600">
+          <Card className="bg-gradient-to-br from-slate-700/50 via-slate-600/40 to-slate-700/50 border-slate-600 transition-all duration-300 hover:shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg text-white flex items-center">
                 <User className="text-orange-400 mr-2" />
@@ -165,7 +165,7 @@ export function TimeSlotSelector({
           </Card>
 
           {/* Available Time Slots */}
-          <Card className="bg-slate-700/50 border-slate-600">
+          <Card className="bg-gradient-to-br from-slate-700/50 via-slate-600/40 to-slate-700/50 border-slate-600 transition-all duration-300 hover:shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg text-white flex items-center">
                 <Clock className="text-green-400 mr-2" />
