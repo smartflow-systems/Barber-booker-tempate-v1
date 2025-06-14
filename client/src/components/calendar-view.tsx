@@ -257,7 +257,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                     <div className={`text-xs px-2 py-1 rounded-md text-center font-medium ${
                       isSelectedDate 
                         ? 'bg-white/20 text-white' 
-                        : 'bg-orange-100 text-orange-700'
+                        : 'bg-orange-600 text-white'
                     }`}>
                       +{dayBookings.length - 2} more bookings
                     </div>
@@ -277,7 +277,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook }: Cale
                           className={`text-xs w-full h-8 px-2 py-1 font-medium ${
                             isSelectedDate 
                               ? 'bg-white/20 text-white border-white/30 hover:bg-white/30' 
-                              : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300'
+                              : 'bg-green-600 text-white border-green-600 hover:bg-green-700 hover:border-green-700'
                           }`}
                           onClick={(e) => {
                             e.stopPropagation();
