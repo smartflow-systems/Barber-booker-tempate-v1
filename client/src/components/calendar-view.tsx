@@ -258,7 +258,7 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook, onTime
                     <div className={`text-xs px-2 py-1 rounded-md text-center font-medium ${
                       isSelectedDate 
                         ? 'bg-white/20 text-white' 
-                        : 'bg-red-400 text-white'
+                        : 'bg-orange-300 text-slate-800'
                     }`}>
                       +{dayBookings.length - 2} more bookings
                     </div>
@@ -275,10 +275,10 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook, onTime
                         <Button
                           size="sm"
                           variant="outline"
-                          className={`text-xs w-full h-8 px-2 py-1 font-medium ${
+                          className={`text-xs w-full h-10 sm:h-8 px-2 py-1 font-medium transition-all duration-200 ${
                             isSelectedDate 
                               ? 'bg-white/20 text-white border-white/30 hover:bg-white/30' 
-                              : 'bg-slate-400 text-white border-slate-400 hover:bg-slate-500 hover:border-slate-500'
+                              : 'bg-teal-500 text-white border-teal-500 hover:bg-teal-600 hover:border-teal-600 active:scale-95'
                           }`}
                           onClick={(e) => {
                             e.stopPropagation();

@@ -65,7 +65,7 @@ export default function Home() {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden">
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -89,11 +89,15 @@ export default function Home() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-6">
+            <nav className="hidden lg:flex items-center space-x-8">
               <Button
                 variant={activeView === "booking" ? "default" : "ghost"}
                 onClick={() => setActiveView("booking")}
-                className="flex items-center space-x-2 bg-gradient-to-r from-transparent via-slate-50/20 to-transparent hover:from-red-50 hover:via-red-100/50 hover:to-red-50 transition-all duration-300"
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${
+                  activeView === "booking" 
+                    ? "bg-teal-500 text-white shadow-lg" 
+                    : "hover:bg-teal-50 hover:text-teal-700"
+                }`}
               >
                 <CalendarPlus className="w-4 h-4" />
                 <span>Book Appointment</span>
@@ -101,7 +105,11 @@ export default function Home() {
               <Button
                 variant={activeView === "features" ? "default" : "ghost"}
                 onClick={() => setActiveView("features")}
-                className="flex items-center space-x-2 bg-gradient-to-r from-transparent via-slate-50/20 to-transparent hover:from-slate-50 hover:via-slate-100/50 hover:to-slate-50 transition-all duration-300"
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${
+                  activeView === "features" 
+                    ? "bg-teal-500 text-white shadow-lg" 
+                    : "hover:bg-teal-50 hover:text-teal-700"
+                }`}
               >
                 <Star className="w-4 h-4" />
                 <span>Features</span>
@@ -109,7 +117,11 @@ export default function Home() {
               <Button
                 variant={activeView === "admin" ? "default" : "ghost"}
                 onClick={() => setActiveView("admin")}
-                className="flex items-center space-x-2 bg-gradient-to-r from-transparent via-slate-50/20 to-transparent hover:from-slate-50 hover:via-slate-100/50 hover:to-slate-50 transition-all duration-300"
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${
+                  activeView === "admin" 
+                    ? "bg-teal-500 text-white shadow-lg" 
+                    : "hover:bg-teal-50 hover:text-teal-700"
+                }`}
                 data-tour="admin-button"
               >
                 <Settings className="w-4 h-4" />
