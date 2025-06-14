@@ -12,11 +12,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { CalendarPlus, Settings, HelpCircle, Gift, Bell, Shield, Star, Calendar, Menu, X } from "lucide-react";
 
 export default function Home() {
-   const [aiMessage, setAiMessage] = useState<string>("");
-
-  const [activeView, setActiveView] = useState<"booking"|"admin"|"features"|"oauth">("booking");
+   const [activeView, setActiveView] = useState<"booking" | "admin" | "features" | "oauth">("booking");
+  const [aiMessage, setAiMessage] = useState<string>("");      // ← NEW
   const [showTour, setShowTour] = useState(false);
-  const [showLoyalty, setShowLoyalty] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPolicy, setShowPolicy] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
