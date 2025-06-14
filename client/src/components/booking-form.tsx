@@ -251,9 +251,9 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                       />
                       <label
                         htmlFor={`barber-${barber.id}`}
-                        className="flex items-center p-3 sm:p-5 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-gradient-to-r peer-checked:from-blue-50 peer-checked:to-indigo-50 peer-checked:shadow-lg hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                        className="flex items-center p-3 sm:p-5 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-red-500 peer-checked:bg-gradient-to-r peer-checked:from-red-50 peer-checked:to-red-100 peer-checked:shadow-lg hover:border-red-300 hover:shadow-md transition-all duration-200"
                       >
-                        <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold mr-3 sm:mr-4 shadow-lg text-sm sm:text-base">
+                        <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 rounded-full flex items-center justify-center text-white font-bold mr-3 sm:mr-4 shadow-lg text-sm sm:text-base">
                           {barber.avatar}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -312,8 +312,8 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                           onClick={() => setSelectedTime(slot)}
                           className={`p-2 sm:p-3 text-center border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                             selectedTime === slot
-                              ? "border-blue-500 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg transform scale-105"
-                              : "border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50 hover:shadow-md"
+                              ? "border-red-500 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg transform scale-105"
+                              : "border-slate-200 bg-white hover:border-red-300 hover:bg-red-50 hover:shadow-md"
                           }`}
                         >
                           <span className="font-semibold text-xs sm:text-sm">{formatTime(slot)}</span>
@@ -403,13 +403,13 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                       />
                       <label
                         htmlFor={`service-${service.id}`}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-gradient-to-r peer-checked:from-blue-50 peer-checked:to-indigo-50 peer-checked:shadow-lg hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                        className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-red-500 peer-checked:bg-gradient-to-r peer-checked:from-red-50 peer-checked:to-red-100 peer-checked:shadow-lg hover:border-red-300 hover:shadow-md transition-all duration-200"
                       >
                         <div>
                           <div className="font-medium text-slate-900">{service.name}</div>
                           <div className="text-sm text-slate-500">{service.duration} min</div>
                         </div>
-                        <div className="text-lg font-bold text-primary">{formatPrice(service.price)}</div>
+                        <div className="text-lg font-bold text-red-600">{formatPrice(service.price)}</div>
                       </label>
                     </div>
                   ))}

@@ -235,10 +235,10 @@ export default function Home() {
               if (result.aiMessage) setAiMessage(result.aiMessage);
             }} />
             {aiMessage && (
-              <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 relative overflow-hidden">
+              <div className="mt-6 p-6 bg-gradient-to-r from-red-50 to-red-100 rounded-lg border-2 border-red-200 relative overflow-hidden">
                 <div className="absolute top-2 right-2 text-2xl opacity-20">💈</div>
                 <div className="absolute bottom-2 left-2 text-xl opacity-20">✂️</div>
-                <h3 className="font-semibold mb-3 text-blue-800 flex items-center">
+                <h3 className="font-semibold mb-3 text-red-800 flex items-center">
                   <span className="mr-2">📝</span>
                   Your Personalized Confirmation
                 </h3>
