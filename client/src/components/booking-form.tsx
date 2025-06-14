@@ -230,30 +230,23 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Booking Form */}
         <div className="lg:col-span-2 w-full max-w-full" data-booking-form>
-          <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-800/95 via-slate-700/90 to-slate-800/95 backdrop-blur-sm w-full overflow-hidden relative transition-all duration-500 hover:shadow-2xl">
-            {/* Decorative barber elements in form header */}
-            <div className="absolute top-2 right-4 text-2xl opacity-20">✂️</div>
-            <div className="absolute top-4 right-12 text-xl opacity-15">💈</div>
-            
-            <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-600 border-b border-slate-600/50 rounded-t-lg relative">
-              <CardTitle className="text-lg sm:text-2xl text-white flex items-center">
-                <CalendarCheck className="text-red-300 mr-2 sm:mr-3 h-5 w-5 sm:h-6 sm:w-6" />
+          <Card className="shadow-xl border border-slate-200 bg-white w-full overflow-hidden relative transition-all duration-300 hover:shadow-2xl">
+            <CardHeader className="bg-gradient-to-r from-teal-50 to-slate-50 border-b border-slate-200 rounded-t-lg py-8">
+              <CardTitle className="text-2xl text-slate-800 flex items-center">
+                <CalendarCheck className="text-teal-600 mr-3 h-6 w-6" />
                 Book Your Appointment
-                <span className="ml-3 text-lg">💈</span>
               </CardTitle>
-              <p className="text-slate-300 font-medium text-sm sm:text-base flex items-center">
-                <span className="mr-2">✂️</span>
-                Select your preferred barber, date, and time slot
-                <span className="ml-2">🪒</span>
+              <p className="text-slate-600 font-medium text-base mt-2">
+                Select your preferred barber, date, and time slot for a professional barbershop experience
               </p>
             </CardHeader>
 
-          <CardContent className="p-3 sm:p-6">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <CardContent className="p-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {/* Barber Selection */}
               <div className="space-y-3" data-tour="barber-selection">
-                <Label className="text-sm font-semibold text-slate-700 flex items-center">
-                  <User className="text-primary mr-2 w-4 h-4" />
+                <Label className="text-lg font-semibold text-slate-800 flex items-center">
+                  <User className="text-teal-600 mr-3 w-5 h-5" />
                   Choose Your Barber
                 </Label>
                 <div className="grid grid-cols-1 gap-3">
@@ -270,7 +263,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                       />
                       <label
                         htmlFor={`barber-${barber.id}`}
-                        className="flex items-center p-3 sm:p-5 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-red-400 peer-checked:bg-gradient-to-r peer-checked:from-red-50 peer-checked:to-red-100 peer-checked:shadow-lg hover:border-red-200 hover:shadow-md transition-all duration-200"
+                        className="flex items-center p-5 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer peer-checked:border-teal-500 peer-checked:bg-gradient-to-r peer-checked:from-teal-50 peer-checked:to-teal-100 peer-checked:shadow-lg hover:border-teal-300 hover:shadow-md transition-all duration-300"
                       >
                         <div className="w-10 h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800 rounded-full flex items-center justify-center text-white font-bold mr-3 sm:mr-4 shadow-lg text-sm sm:text-base">
                           {barber.avatar}
@@ -329,10 +322,10 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                           key={slot}
                           type="button"
                           onClick={() => setSelectedTime(slot)}
-                          className={`p-2 sm:p-3 text-center border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                          className={`p-3 text-center border-2 rounded-xl cursor-pointer transition-all duration-300 ${
                             selectedTime === slot
-                              ? "border-red-400 bg-gradient-to-r from-red-300 to-red-400 text-white shadow-lg transform scale-105"
-                              : "border-slate-200 bg-white hover:border-red-200 hover:bg-red-50 hover:shadow-md"
+                              ? "border-teal-500 bg-gradient-to-r from-teal-400 to-teal-500 text-white shadow-lg transform scale-105"
+                              : "border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50 hover:shadow-md"
                           }`}
                         >
                           <span className="font-semibold text-xs sm:text-sm">{formatTime(slot)}</span>

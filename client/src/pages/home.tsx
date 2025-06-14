@@ -130,7 +130,11 @@ export default function Home() {
               <Button
                 variant={activeView === "oauth" ? "default" : "ghost"}
                 onClick={() => setActiveView("oauth")}
-                className="flex items-center space-x-2 bg-gradient-to-r from-transparent via-slate-50/20 to-transparent hover:from-slate-50 hover:via-slate-100/50 hover:to-slate-50 transition-all duration-300"
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-all duration-300 ${
+                  activeView === "oauth" 
+                    ? "bg-teal-500 text-white shadow-lg" 
+                    : "hover:bg-teal-50 hover:text-teal-700"
+                }`}
               >
                 <Calendar className="w-4 h-4" />
                 <span>Calendar Setup</span>
@@ -138,7 +142,7 @@ export default function Home() {
               <Button
                 variant="ghost"
                 onClick={startTour}
-                className="flex items-center space-x-2 text-slate-600 hover:text-slate-900 bg-gradient-to-r from-transparent via-slate-50/20 to-transparent hover:from-slate-50 hover:via-slate-100/50 hover:to-slate-50 transition-all duration-300"
+                className="flex items-center space-x-2 px-6 py-3 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all duration-300"
                 title="Take a quick tour"
               >
                 <HelpCircle className="w-4 h-4" />
