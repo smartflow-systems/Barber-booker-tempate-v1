@@ -95,8 +95,8 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
       setShowSuccessModal(true);
       
       // Call the callback with AI message if provided
-      if (onBookingComplete && data.aiMessage) {
-        onBookingComplete({ aiMessage: data.aiMessage });
+      if (onBookingComplete && (data as any).aiMessage) {
+        onBookingComplete({ aiMessage: (data as any).aiMessage });
       }
       
       form.reset();
@@ -354,6 +354,23 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                   {form.formState.errors.customerPhone && (
                     <p className="text-sm text-red-500">{form.formState.errors.customerPhone.message}</p>
                   )}
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="customerEmail" className="text-sm font-semibold text-slate-700 flex items-center">
+                    <MessageCircle className="text-primary mr-2 w-4 h-4" />
+                    Email Address (Optional)
+                  </Label>
+                  <Input
+                    id="customerEmail"
+                    type="email"
+                    placeholder="your.email@example.com"
+                    {...form.register("customerEmail")}
+                  />
+                  {form.formState.errors.customerEmail && (
+                    <p className="text-sm text-red-500">{form.formState.errors.customerEmail.message}</p>
+                  )}
+                  <p className="text-xs text-slate-500">Get a personalized confirmation message via email</p>
                 </div>
               </div>
 
