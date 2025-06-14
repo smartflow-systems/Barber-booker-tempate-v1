@@ -67,12 +67,14 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4">
-            <Lock className="h-6 w-6 text-white" />
+          <div className="mx-auto w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4">
+            <span className="text-white text-xl">✂️</span>
           </div>
-          <CardTitle className="text-2xl font-bold">Barber Admin Login</CardTitle>
-          <CardDescription>
-            Sign in to access your barber dashboard and connect Google Calendar
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            Smart Flow Systems
+          </CardTitle>
+          <CardDescription className="flex items-center justify-center gap-2">
+            <span>🔐</span> Sign in to access your professional barber dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -120,12 +120,14 @@ export default function Admin() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                <Shield className="h-4 w-4 text-white" />
+              <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
+                <div className="text-white font-bold text-xs">✂️</div>
               </div>
               <div>
-                <h1 className="text-xl font-semibold">Barber Admin Panel</h1>
-                <p className="text-sm text-muted-foreground">Welcome back, {adminUser.username}</p>
+                <h1 className="text-xl font-semibold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">Smart Flow Systems</h1>
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <span>💼</span> Professional Barber Management • Welcome back, {adminUser.username}
+                </p>
               </div>
             </div>
             <Button 
@@ -145,14 +147,21 @@ export default function Admin() {
           
           {/* Google Calendar Connection */}
           <Card className="lg:col-span-2">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                <CardTitle>Google Calendar Integration</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+                  <Calendar className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    Google Calendar Integration
+                    <span className="text-lg">📅</span>
+                  </CardTitle>
+                  <CardDescription className="flex items-center gap-1 mt-1">
+                    <span>⚡</span> Connect your Google Calendar to automatically sync bookings and prevent double bookings
+                  </CardDescription>
+                </div>
               </div>
-              <CardDescription>
-                Connect your Google Calendar to automatically sync bookings and prevent double bookings
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -218,17 +227,25 @@ export default function Admin() {
 
           {/* Today's Stats */}
           <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                <CardTitle>Today's Overview</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    Today's Overview
+                    <span className="text-lg">✂️</span>
+                  </CardTitle>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-center">
+                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg">
+                  <div className="text-3xl mb-2">💺</div>
                   <div className="text-2xl font-bold text-primary">{todayBookings.length}</div>
-                  <p className="text-sm text-muted-foreground">Bookings Today</p>
+                  <p className="text-sm text-muted-foreground font-medium">Bookings Today</p>
                 </div>
                 
                 <Separator />
@@ -251,33 +268,50 @@ export default function Admin() {
 
           {/* Account Info */}
           <Card className="md:col-span-2 lg:col-span-3">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                <CardTitle>Account Information</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <Users className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    Account Information
+                    <span className="text-lg">👤</span>
+                  </CardTitle>
+                </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Username</span>
+            <CardContent className="bg-gradient-to-br from-slate-50 to-gray-50">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-3 p-4 bg-white rounded-lg border border-slate-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span>👤</span> Username
+                    </span>
                     <span className="text-sm font-medium">{adminUser.username}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Role</span>
-                    <Badge variant="outline">{adminUser.role}</Badge>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span>💼</span> Role
+                    </span>
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                      ✂️ {adminUser.role}
+                    </Badge>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Status</span>
-                    <Badge variant={adminUser.isActive ? "default" : "secondary"}>
-                      {adminUser.isActive ? "Active" : "Inactive"}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span>⚡</span> Status
+                    </span>
+                    <Badge variant={adminUser.isActive ? "default" : "secondary"} className={adminUser.isActive ? "bg-green-100 text-green-700 border-green-200" : ""}>
+                      {adminUser.isActive ? "🟢 Active" : "🔴 Inactive"}
                     </Badge>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Last Login</span>
+                <div className="space-y-3 p-4 bg-white rounded-lg border border-slate-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span>🕐</span> Last Login
+                    </span>
                     <span className="text-sm font-medium">
                       {adminUser.lastLogin 
                         ? new Date(adminUser.lastLogin).toLocaleDateString()
@@ -285,9 +319,13 @@ export default function Admin() {
                       }
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Barber ID</span>
-                    <span className="text-sm font-medium">{adminUser.barberId || "Not assigned"}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
+                      <span>🆔</span> Barber ID
+                    </span>
+                    <span className="text-sm font-medium flex items-center gap-1">
+                      <span>✂️</span> {adminUser.barberId || "Not assigned"}
+                    </span>
                   </div>
                 </div>
               </div>
