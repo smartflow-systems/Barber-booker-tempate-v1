@@ -239,23 +239,29 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
         <div className="lg:col-span-2 w-full max-w-full" data-booking-form>
           <Card className="shadow-xl border border-slate-200 bg-white w-full overflow-hidden relative transition-all duration-300 hover:shadow-2xl">
             <CardHeader className="bg-gradient-to-r from-teal-50 to-slate-50 border-b border-slate-200 rounded-t-lg py-8">
-              <CardTitle className="text-2xl text-slate-800 flex items-center">
-                <CalendarCheck className="text-teal-600 mr-3 h-6 w-6" />
+              <CardTitle className="text-2xl text-slate-800 flex items-center" id="booking-form-title">
+                <CalendarCheck className="text-teal-600 mr-3 h-6 w-6" aria-hidden="true" />
                 Book Your Appointment
               </CardTitle>
-              <p className="text-slate-600 font-medium text-base mt-2">
+              <p className="text-slate-600 font-medium text-base mt-2" id="booking-form-description">
                 Select your preferred barber, date, and time slot for a professional barbershop experience
               </p>
             </CardHeader>
 
           <CardContent className="p-8">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form 
+              onSubmit={form.handleSubmit(onSubmit)} 
+              className="space-y-8"
+              aria-labelledby="booking-form-title"
+              aria-describedby="booking-form-description"
+              role="form"
+            >
               {/* Barber Selection */}
-              <div className="space-y-3" data-tour="barber-selection">
-                <Label className="text-lg font-semibold text-slate-800 flex items-center">
-                  <User className="text-teal-600 mr-3 w-5 h-5" />
+              <fieldset className="space-y-3" data-tour="barber-selection" aria-labelledby="barber-selection-legend">
+                <legend id="barber-selection-legend" className="text-lg font-semibold text-slate-800 flex items-center">
+                  <User className="text-teal-600 mr-3 w-5 h-5" aria-hidden="true" />
                   Choose Your Barber
-                </Label>
+                </legend>
                 <div className="grid grid-cols-1 gap-3">
                   {barbers.map((barber) => (
                     <div key={barber.id} className="relative">
@@ -307,16 +313,16 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                   ))}
                 </div>
                 {form.formState.errors.barberId && (
-                  <p className="text-sm text-red-500">{form.formState.errors.barberId.message}</p>
+                  <p className="text-sm text-red-500" role="alert" aria-live="polite">{form.formState.errors.barberId.message}</p>
                 )}
-              </div>
+              </fieldset>
 
               {/* Date Selection */}
-              <div className="space-y-3" data-tour="date-selection">
-                <Label htmlFor="date" className="text-sm font-semibold text-slate-700 flex items-center">
-                  <Calendar className="text-primary mr-2 w-4 h-4" />
+              <fieldset className="space-y-3" data-tour="date-selection" aria-labelledby="date-selection-legend">
+                <legend id="date-selection-legend" className="text-sm font-semibold text-slate-700 flex items-center">
+                  <Calendar className="text-primary mr-2 w-4 h-4" aria-hidden="true" />
                   Select Date
-                </Label>
+                </legend>
                 <Input
                   type="date"
                   id="date"
@@ -324,19 +330,21 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
                   className="w-full"
+                  aria-describedby={form.formState.errors.date ? "date-error" : undefined}
+                  aria-required="true"
                 />
                 {form.formState.errors.date && (
-                  <p className="text-sm text-red-500">{form.formState.errors.date.message}</p>
+                  <p id="date-error" className="text-sm text-red-500" role="alert" aria-live="polite">{form.formState.errors.date.message}</p>
                 )}
-              </div>
+              </fieldset>
 
               {/* Time Slots */}
               {selectedBarber && selectedDate && (
-                <div className="space-y-3">
-                  <Label className="text-sm font-semibold text-slate-700 flex items-center">
-                    <Clock className="text-primary mr-2 w-4 h-4" />
+                <fieldset className="space-y-3" aria-labelledby="time-slots-legend">
+                  <legend id="time-slots-legend" className="text-sm font-semibold text-slate-700 flex items-center">
+                    <Clock className="text-primary mr-2 w-4 h-4" aria-hidden="true" />
                     Available Time Slots
-                  </Label>
+                  </legend>
                   {availableSlots.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
                       {availableSlots.map((slot) => (
@@ -351,11 +359,11 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                               const serviceSection = document.getElementById('service-selection');
                               if (serviceSection) {
                                 serviceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                serviceSection.style.border = '3px solid #14b8a6';
-                                serviceSection.style.borderRadius = '8px';
+                                (serviceSection as HTMLElement).style.border = '3px solid #14b8a6';
+                                (serviceSection as HTMLElement).style.borderRadius = '8px';
                                 setTimeout(() => {
-                                  serviceSection.style.border = '';
-                                  serviceSection.style.borderRadius = '';
+                                  (serviceSection as HTMLElement).style.border = '';
+                                  (serviceSection as HTMLElement).style.borderRadius = '';
                                 }, 2000);
                               }
                             }, 100);
@@ -365,8 +373,13 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                               ? "border-teal-500 bg-gradient-to-r from-teal-400 to-teal-500 text-white shadow-lg transform scale-105"
                               : "border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50 hover:shadow-md"
                           }`}
+                          aria-pressed={selectedTime === slot}
+                          aria-describedby={`time-${slot}-desc`}
                         >
                           <span className="font-semibold text-xs sm:text-sm">{formatTime(slot)}</span>
+                          <span id={`time-${slot}-desc`} className="sr-only">
+                            {selectedTime === slot ? "Selected time slot" : "Available time slot"}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -377,9 +390,9 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                     </div>
                   )}
                   {form.formState.errors.time && (
-                    <p className="text-sm text-red-500">{form.formState.errors.time.message}</p>
+                    <p className="text-sm text-red-500" role="alert" aria-live="polite">{form.formState.errors.time.message}</p>
                   )}
-                </div>
+                </fieldset>
               )}
 
               {/* Customer Information */}
