@@ -9,6 +9,15 @@
 
 .barber-pole-animation {
   animation: barber-pole 2s linear infinite;
+  will-change: transform;
+}
+
+/* Ensure consistent panel animations across screen sizes */
+@media (max-width: 1024px) {
+  .barber-pole-animation {
+    animation: barber-pole 2s linear infinite;
+    transform-origin: center;
+  }
 }
 
 /* Dynamic time-based backgrounds */

@@ -82,7 +82,7 @@ export default function Home() {
       <div className={`absolute inset-0 ${overlayOpacity} transition-all duration-1000 pointer-events-none`}></div>
       
       {/* Header */}
-      <header className={`bg-gradient-to-r from-white/95 via-slate-50/90 to-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200/50 relative overflow-hidden transition-all duration-500 ${textColor}`}>
+      <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200/50 relative overflow-hidden transition-all duration-500 z-20">
         {/* Decorative barber elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-5">
           <div className="absolute top-2 left-20 text-4xl">✂️</div>

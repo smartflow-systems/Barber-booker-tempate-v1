@@ -89,6 +89,15 @@ export function TimeSlotSelector({
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
     onTimeSelect(time);
+    
+    // Auto-advance to next step after selecting time
+    setTimeout(() => {
+      onClose();
+      const serviceSection = document.querySelector('[data-tour="service-selection"]');
+      if (serviceSection) {
+        serviceSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 300);
   };
 
   const handleQuickBook = (time: string) => {
@@ -181,10 +190,10 @@ export function TimeSlotSelector({
                     <div key={time} className="space-y-2">
                       <Button
                         variant={selectedTime === time ? "default" : "outline"}
-                        className={`w-full h-12 text-sm font-medium ${
+                        className={`w-full h-12 text-sm font-medium transition-all duration-200 ${
                           selectedTime === time
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                            : "bg-slate-600 border-slate-500 text-white hover:bg-slate-500"
+                            ? "bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white border-teal-500 shadow-lg scale-105"
+                            : "bg-slate-600 border-slate-500 text-white hover:bg-teal-600 hover:border-teal-500 hover:scale-105 active:scale-95"
                         }`}
                         onClick={() => handleTimeSelect(time)}
                       >

@@ -110,14 +110,12 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook, onTime
     const dateString = getDateString(day);
     const dayBookings = getBookingsForDate(day);
     
-    // If there are bookings or limited available slots, show the detailed time selector
-    if (dayBookings.length > 0 || getAvailableSlots(day).length <= 6) {
-      setTimeSelectorDate(dateString);
-      setShowTimeSelector(true);
-    } else {
-      setSelectedDate(dateString);
-      onDateSelect?.(dateString);
-    }
+    setSelectedDate(dateString);
+    onDateSelect?.(dateString);
+    
+    // Always show time selector for better user experience
+    setTimeSelectorDate(dateString);
+    setShowTimeSelector(true);
   };
 
   const getAvailableSlots = (day: number) => {
