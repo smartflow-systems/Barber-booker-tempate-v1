@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Phone, CalendarCheck, Star, MessageCircle, Scissors } from "lucide-react";
+import { Calendar, Clock, User, Phone, CalendarCheck, Star, MessageCircle, Scissors, Camera, Upload } from "lucide-react";
 import { SuccessModal } from "@/components/success-modal";
 import { CalendarView } from "@/components/calendar-view";
 import { SimpleTimeSelector } from "@/components/simple-time-selector";
@@ -266,7 +266,22 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                         value={barber.id}
                         className="sr-only peer"
                         checked={selectedBarber === barber.id}
-                        onChange={() => setSelectedBarber(barber.id)}
+                        onChange={() => {
+                          setSelectedBarber(barber.id);
+                          // Auto-scroll to date selection
+                          setTimeout(() => {
+                            const dateSection = document.querySelector('[data-tour="date-selection"]');
+                            if (dateSection) {
+                              dateSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              dateSection.style.border = '3px solid #14b8a6';
+                              dateSection.style.borderRadius = '8px';
+                              setTimeout(() => {
+                                dateSection.style.border = '';
+                                dateSection.style.borderRadius = '';
+                              }, 2000);
+                            }
+                          }, 100);
+                        }}
                       />
                       <label
                         htmlFor={`barber-${barber.id}`}
@@ -415,6 +430,38 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                     <p className="text-sm text-red-500">{form.formState.errors.customerEmail.message}</p>
                   )}
                   <p className="text-xs text-slate-500">Get a personalized confirmation message via email</p>
+                </div>
+              </div>
+
+              {/* Photo Upload Section */}
+              <div className="space-y-3" data-tour="photo-upload">
+                <Label className="text-lg font-semibold text-slate-800 flex items-center">
+                  <Camera className="text-teal-600 mr-3 w-5 h-5" />
+                  Upload Reference Photo (Optional)
+                </Label>
+                <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-teal-400 transition-colors duration-200">
+                  <input
+                    type="file"
+                    id="photo-upload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          // Handle photo upload here
+                          console.log('Photo uploaded:', file.name);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                  <label htmlFor="photo-upload" className="cursor-pointer">
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                    <p className="text-sm text-slate-600 mb-1">Click to upload a reference photo</p>
+                    <p className="text-xs text-slate-500">Show your barber exactly what you want (PNG, JPG up to 10MB)</p>
+                  </label>
                 </div>
               </div>
 

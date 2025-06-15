@@ -3,15 +3,14 @@
 @tailwind utilities;
 
 @keyframes barber-pole {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-10px); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(8px); }
 }
 
 .barber-pole-animation {
-  animation: barber-pole 2s linear infinite;
-  will-change: transform;
-  transform-origin: 50% 50%;
-  animation-fill-mode: both;
+  animation: barber-pole 3s linear infinite;
+  transform-origin: center;
+  opacity: 0.7;
 }
 
 /* Fix panel layering and weight consistency */
