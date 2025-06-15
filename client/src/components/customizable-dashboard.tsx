@@ -409,10 +409,10 @@ export function CustomizableDashboard() {
               items={enabledWidgets.map(w => w.id)} 
               strategy={rectSortingStrategy}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="widget-grid">
                 {enabledWidgets.map((widget) => (
                   <SortableWidget key={widget.id} widget={widget}>
-                    <div className="transition-all duration-200 ease-out transform hover:scale-[1.02]">
+                    <div className="dashboard-widget">
                       {renderWidget(widget)}
                     </div>
                   </SortableWidget>
@@ -421,9 +421,9 @@ export function CustomizableDashboard() {
             </SortableContext>
           </DndContext>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="widget-grid">
             {enabledWidgets.map((widget) => (
-              <div key={widget.id} className="transition-all duration-200 ease-out hover:shadow-lg">
+              <div key={widget.id} className="dashboard-widget">
                 {renderWidget(widget)}
               </div>
             ))}

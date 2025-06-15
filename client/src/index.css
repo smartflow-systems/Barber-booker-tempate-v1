@@ -27,6 +27,39 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* Dashboard widget animations */
+.dashboard-widget {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.dashboard-widget:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth drag animations */
+.sortable-widget {
+  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
+}
+
+.sortable-widget.dragging {
+  z-index: 1000;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  transform: rotate(2deg) scale(1.05);
+}
+
+/* Grid layout improvements */
+.widget-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: start;
+}
+
 /* Dynamic time-based backgrounds */
 .time-background {
   transition: background 2s ease-in-out;
