@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global light green background for all pages */
+html, body {
+  background: linear-gradient(135deg, 
+    #f0f4f1 0%, 
+    #e8f0ea 30%, 
+    #d5e7d9 70%, 
+    #c2dcc7 100%
+  );
+  min-height: 100vh;
+}
+
+#root {
+  background: linear-gradient(135deg, 
+    #f0f4f1 0%, 
+    #e8f0ea 30%, 
+    #d5e7d9 70%, 
+    #c2dcc7 100%
+  );
+  min-height: 100vh;
+}
+
 @keyframes barber-pole {
   0% { transform: translateY(0); }
   100% { transform: translateY(-20px); }
@@ -129,19 +150,19 @@
 }
 
 :root {
-  --background: 225 15% 97%; /* #f8fafc */
+  --background: 140 20% 94%; /* #f0f4f1 - light green background */
   --foreground: 215 25% 15%; /* #1f2937 - darker for better contrast */
-  --muted: 215 20% 85%; /* #d1d5db - gray instead of white */
+  --muted: 140 15% 88%; /* #e8f0ea - light green muted */
   --muted-foreground: 215 25% 25%; /* #374151 - darker for better contrast */
-  --popover: 215 20% 88%; /* #e5e7eb - gray background */
+  --popover: 140 15% 88%; /* #e8f0ea - light green background */
   --popover-foreground: 215 25% 15%;
-  --card: 215 20% 88%; /* #e5e7eb - gray cards */
+  --card: 140 15% 88%; /* #e8f0ea - light green cards */
   --card-foreground: 215 25% 15%; /* #1f2937 - dark text */
-  --border: 215 28% 75%; /* #9ca3af - darker border */
-  --input: 215 20% 88%; /* #e5e7eb - gray input */
+  --border: 140 20% 75%; /* light green border */
+  --input: 140 15% 88%; /* #e8f0ea - light green input */
   --primary: 215 84% 34%; /* #1e40af */
   --primary-foreground: 0 0% 98%;
-  --secondary: 215 20% 85%; /* #d1d5db - gray secondary */
+  --secondary: 140 15% 88%; /* #e8f0ea - light green secondary */
   --secondary-foreground: 215 25% 15%; /* #1f2937 - dark text */
   --accent: 174 72% 41%; /* #0d9488 - teal accent */
   --accent-foreground: 0 0% 98%;
