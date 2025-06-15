@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Phone, CalendarCheck, Star, MessageCircle } from "lucide-react";
+import { Calendar, Clock, User, Phone, CalendarCheck, Star, MessageCircle, Scissors } from "lucide-react";
 import { SuccessModal } from "@/components/success-modal";
 import { CalendarView } from "@/components/calendar-view";
 import { BarberProfile } from "@/components/barber-profile";
@@ -211,12 +211,14 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
     
     // Auto-advance to service selection after time is selected
     setTimeout(() => {
-      const serviceSection = document.querySelector('[data-tour="service-selection"]');
+      const serviceSection = document.querySelector('#service-selection') || document.querySelector('[data-tour="service-selection"]');
       console.log('🎯 Service section found:', serviceSection);
       
       if (serviceSection) {
-        // Scroll to service section
-        serviceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Scroll to service section with offset for better visibility
+        const yOffset = -100;
+        const y = serviceSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
         console.log('📍 Scrolled to service section');
         
         // Add visual highlight to service section
@@ -226,8 +228,13 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
         }, 3000);
       } else {
         console.log('❌ Service section not found');
+        // Fallback - scroll to form
+        const form = document.querySelector('[data-booking-form]');
+        if (form) {
+          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
-    }, 500);
+    }, 300);
   };
 
   return (
@@ -409,9 +416,9 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
               </div>
 
               {/* Service Selection */}
-              <div className="space-y-3" data-tour="service-selection">
+              <div className="space-y-3" data-tour="service-selection" id="service-selection">
                 <Label className="text-lg font-semibold text-slate-800 flex items-center">
-                  <i className="fas fa-scissors text-teal-600 mr-3"></i>
+                  <Star className="text-teal-600 mr-3 w-5 h-5" />
                   Select Service
                 </Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
