@@ -9,7 +9,8 @@ import { GoogleOAuthSetup } from "@/components/google-oauth-setup";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { CalendarPlus, Settings, HelpCircle, Gift, Bell, Shield, Star, Calendar, Menu, X } from "lucide-react";
+import { useTimeBackground } from "@/hooks/use-time-background";
+import { CalendarPlus, Settings, HelpCircle, Gift, Bell, Shield, Star, Calendar, Menu, X, Sunrise, Sun, Sunset, Moon } from "lucide-react";
 
 export default function Home() {
    const [activeView, setActiveView] = useState<"booking" | "admin" | "features" | "oauth">("booking");
@@ -20,6 +21,16 @@ export default function Home() {
   const [showLoyalty, setShowLoyalty] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { 
+    backgroundClassName, 
+    textColor, 
+    overlayOpacity, 
+    greeting, 
+    businessHours, 
+    timeOfDay,
+    currentTime,
+    getBackgroundClasses 
+  } = useTimeBackground();
 
   useEffect(() => {
     // Check if user has seen the tour before
@@ -52,10 +63,26 @@ export default function Home() {
     setShowPolicy(false);
   };
 
+  const getTimeIcon = () => {
+    switch (timeOfDay) {
+      case 'dawn': return <Sunrise className="w-5 h-5" />;
+      case 'morning': return <Sun className="w-5 h-5" />;
+      case 'midday': return <Sun className="w-5 h-5" />;
+      case 'afternoon': return <Sun className="w-5 h-5" />;
+      case 'evening': return <Sunset className="w-5 h-5" />;
+      case 'night': return <Moon className="w-5 h-5" />;
+      case 'late-night': return <Moon className="w-5 h-5" />;
+      default: return <Sun className="w-5 h-5" />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className={`min-h-screen ${getBackgroundClasses()}`}>
+      {/* Dynamic overlay for better content readability */}
+      <div className={`absolute inset-0 ${overlayOpacity} transition-all duration-1000 pointer-events-none`}></div>
+      
       {/* Header */}
-      <header className="bg-gradient-to-r from-white/95 via-slate-50/90 to-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200/50 relative overflow-hidden transition-all duration-500">
+      <header className={`bg-gradient-to-r from-white/95 via-slate-50/90 to-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200/50 relative overflow-hidden transition-all duration-500 ${textColor}`}>
         {/* Decorative barber elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-5">
           <div className="absolute top-2 left-20 text-4xl">✂️</div>
@@ -80,12 +107,32 @@ export default function Home() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full animate-pulse"></div>
               </div>
               <div className="ml-4 sm:ml-6">
-                <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-teal-800 via-slate-800 to-teal-700 bg-clip-text text-transparent">
-                  BarberFlow Systems
-                </h1>
-                <p className="text-sm sm:text-base text-slate-600 font-medium hidden sm:block mt-1">
-                  Professional Barbershop Management Platform
-                </p>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-teal-800 via-slate-800 to-teal-700 bg-clip-text text-transparent">
+                    BarberFlow Systems
+                  </h1>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-slate-200/50">
+                    {getTimeIcon()}
+                    <span className="text-sm font-medium text-slate-700">
+                      {greeting}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 mt-1">
+                  <p className="text-sm sm:text-base text-slate-600 font-medium hidden sm:block">
+                    Professional Barbershop Management Platform
+                  </p>
+                  <div className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium ${
+                    businessHours.isOpen 
+                      ? 'bg-green-100/80 text-green-700 border border-green-200/50' 
+                      : 'bg-red-100/80 text-red-700 border border-red-200/50'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      businessHours.isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+                    }`}></div>
+                    {businessHours.message}
+                  </div>
+                </div>
               </div>
             </div>
 
