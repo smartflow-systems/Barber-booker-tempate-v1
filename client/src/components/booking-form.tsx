@@ -205,36 +205,22 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
   };
 
   const handleTimeSelect = (time: string) => {
-    console.log('🔥 Time selected:', time);
     setSelectedTime(time);
     form.setValue("time", time);
     
-    // Auto-advance to service selection after time is selected
+    // Scroll to service section immediately
     setTimeout(() => {
-      const serviceSection = document.querySelector('#service-selection') || document.querySelector('[data-tour="service-selection"]');
-      console.log('🎯 Service section found:', serviceSection);
-      
+      const serviceSection = document.getElementById('service-selection');
       if (serviceSection) {
-        // Scroll to service section with offset for better visibility
-        const yOffset = -100;
-        const y = serviceSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-        console.log('📍 Scrolled to service section');
-        
-        // Add visual highlight to service section
-        serviceSection.classList.add('ring-4', 'ring-teal-500', 'ring-opacity-60', 'transition-all', 'duration-300');
+        serviceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        serviceSection.style.border = '3px solid #14b8a6';
+        serviceSection.style.borderRadius = '8px';
         setTimeout(() => {
-          serviceSection.classList.remove('ring-4', 'ring-teal-500', 'ring-opacity-60', 'transition-all', 'duration-300');
-        }, 3000);
-      } else {
-        console.log('❌ Service section not found');
-        // Fallback - scroll to form
-        const form = document.querySelector('[data-booking-form]');
-        if (form) {
-          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+          serviceSection.style.border = '';
+          serviceSection.style.borderRadius = '';
+        }, 2000);
       }
-    }, 300);
+    }, 100);
   };
 
   return (

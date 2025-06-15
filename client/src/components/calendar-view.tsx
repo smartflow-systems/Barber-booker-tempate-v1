@@ -343,10 +343,8 @@ export function CalendarView({ onDateSelect, selectedBarber, onQuickBook, onTime
         selectedDate={timeSelectorDate}
         selectedBarber={selectedBarber}
         onTimeSelect={(time) => {
-          console.log('📅 Calendar received time:', time);
           setSelectedDate(timeSelectorDate);
           onDateSelect?.(timeSelectorDate);
-          console.log('📞 Calendar calling onTimeSelect with:', time);
           onTimeSelect?.(time);
           setShowTimeSelector(false);
         }}
