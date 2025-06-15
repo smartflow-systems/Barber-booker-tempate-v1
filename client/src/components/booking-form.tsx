@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, Phone, CalendarCheck, Star, MessageCircle, Scissors } from "lucide-react";
 import { SuccessModal } from "@/components/success-modal";
 import { CalendarView } from "@/components/calendar-view";
+import { SimpleTimeSelector } from "@/components/simple-time-selector";
 import { BarberProfile } from "@/components/barber-profile";
 import { ProgressIndicator } from "@/components/progress-indicator";
 import { useToast } from "@/hooks/use-toast";
@@ -327,7 +328,23 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                         <button
                           key={slot}
                           type="button"
-                          onClick={() => setSelectedTime(slot)}
+                          onClick={() => {
+                            setSelectedTime(slot);
+                            form.setValue("time", slot);
+                            // Auto-scroll to service selection
+                            setTimeout(() => {
+                              const serviceSection = document.getElementById('service-selection');
+                              if (serviceSection) {
+                                serviceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                serviceSection.style.border = '3px solid #14b8a6';
+                                serviceSection.style.borderRadius = '8px';
+                                setTimeout(() => {
+                                  serviceSection.style.border = '';
+                                  serviceSection.style.borderRadius = '';
+                                }, 2000);
+                              }
+                            }, 100);
+                          }}
                           className={`p-3 text-center border-2 rounded-xl cursor-pointer transition-all duration-300 ${
                             selectedTime === slot
                               ? "border-teal-500 bg-gradient-to-r from-teal-400 to-teal-500 text-white shadow-lg transform scale-105"
