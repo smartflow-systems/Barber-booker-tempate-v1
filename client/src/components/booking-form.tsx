@@ -396,25 +396,28 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
               )}
 
               {/* Customer Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="customer-info">
+              <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-4" data-tour="customer-info" aria-labelledby="customer-info-legend">
+                <legend id="customer-info-legend" className="sr-only">Customer Information</legend>
                 <div className="space-y-2">
                   <Label htmlFor="customerName" className="text-lg font-semibold text-slate-800 flex items-center">
-                    <User className="text-teal-600 mr-3 w-5 h-5" />
+                    <User className="text-teal-600 mr-3 w-5 h-5" aria-hidden="true" />
                     Your Name
                   </Label>
                   <Input
                     id="customerName"
                     placeholder="Enter your full name"
                     {...form.register("customerName")}
+                    aria-required="true"
+                    aria-describedby={form.formState.errors.customerName ? "name-error" : undefined}
                   />
                   {form.formState.errors.customerName && (
-                    <p className="text-sm text-red-500">{form.formState.errors.customerName.message}</p>
+                    <p id="name-error" className="text-sm text-red-500" role="alert" aria-live="polite">{form.formState.errors.customerName.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="customerPhone" className="text-lg font-semibold text-slate-800 flex items-center">
-                    <Phone className="text-teal-600 mr-3 w-5 h-5" />
+                    <Phone className="text-teal-600 mr-3 w-5 h-5" aria-hidden="true" />
                     Phone Number
                   </Label>
                   <Input
@@ -422,15 +425,17 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                     type="tel"
                     placeholder="(555) 123-4567"
                     {...form.register("customerPhone")}
+                    aria-required="true"
+                    aria-describedby={form.formState.errors.customerPhone ? "phone-error" : undefined}
                   />
                   {form.formState.errors.customerPhone && (
-                    <p className="text-sm text-red-500">{form.formState.errors.customerPhone.message}</p>
+                    <p id="phone-error" className="text-sm text-red-500" role="alert" aria-live="polite">{form.formState.errors.customerPhone.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="customerEmail" className="text-sm font-semibold text-slate-700 flex items-center">
-                    <MessageCircle className="text-primary mr-2 w-4 h-4" />
+                    <MessageCircle className="text-primary mr-2 w-4 h-4" aria-hidden="true" />
                     Email Address (Optional)
                   </Label>
                   <Input
@@ -438,20 +443,21 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                     type="email"
                     placeholder="your.email@example.com"
                     {...form.register("customerEmail")}
+                    aria-describedby={form.formState.errors.customerEmail ? "email-error" : "email-help"}
                   />
                   {form.formState.errors.customerEmail && (
-                    <p className="text-sm text-red-500">{form.formState.errors.customerEmail.message}</p>
+                    <p id="email-error" className="text-sm text-red-500" role="alert" aria-live="polite">{form.formState.errors.customerEmail.message}</p>
                   )}
-                  <p className="text-xs text-slate-500">Get a personalized confirmation message via email</p>
+                  <p id="email-help" className="text-xs text-slate-500">Get a personalized confirmation message via email</p>
                 </div>
-              </div>
+              </fieldset>
 
               {/* Photo Upload Section */}
-              <div className="space-y-3" data-tour="photo-upload">
-                <Label className="text-lg font-semibold text-slate-800 flex items-center">
-                  <Camera className="text-teal-600 mr-3 w-5 h-5" />
+              <fieldset className="space-y-3" data-tour="photo-upload" aria-labelledby="photo-upload-legend">
+                <legend id="photo-upload-legend" className="text-lg font-semibold text-slate-800 flex items-center">
+                  <Camera className="text-teal-600 mr-3 w-5 h-5" aria-hidden="true" />
                   Upload Reference Photo (Optional)
-                </Label>
+                </legend>
                 <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-teal-400 transition-colors duration-200">
                   <input
                     type="file"
@@ -469,14 +475,15 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                         reader.readAsDataURL(file);
                       }
                     }}
+                    aria-describedby="photo-upload-help"
                   />
-                  <label htmlFor="photo-upload" className="cursor-pointer">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+                  <label htmlFor="photo-upload" className="cursor-pointer block">
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" aria-hidden="true" />
                     <p className="text-sm text-slate-600 mb-1">Click to upload a reference photo</p>
-                    <p className="text-xs text-slate-500">Show your barber exactly what you want (PNG, JPG up to 10MB)</p>
+                    <p id="photo-upload-help" className="text-xs text-slate-500">Show your barber exactly what you want (PNG, JPG up to 10MB)</p>
                   </label>
                 </div>
-              </div>
+              </fieldset>
 
               {/* Service Selection */}
               <div className="space-y-3" data-tour="service-selection" id="service-selection">
