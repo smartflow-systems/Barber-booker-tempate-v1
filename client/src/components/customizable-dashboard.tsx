@@ -24,8 +24,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Settings, GripVertical, Plus, X, Eye, EyeOff } from "lucide-react";
+import { Settings, GripVertical, Plus, X, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 import { 
   AVAILABLE_WIDGETS,
   TodayBookingsWidget,
@@ -248,21 +249,19 @@ export function CustomizableDashboard() {
     const widgetConfig = AVAILABLE_WIDGETS[widget.type];
     if (!widgetConfig) {
       return (
-        <Card className="h-32">
-          <CardContent className="p-4">
-            <p className="text-center text-gray-500">Widget not found: {widget.type}</p>
-          </CardContent>
-        </Card>
+        <div className={`${getSizeClass(widget.size)} h-64 bg-white rounded-lg border border-gray-200 p-4`}>
+          <p className="text-center text-gray-500">Widget not found: {widget.type}</p>
+        </div>
       );
     }
 
     const WidgetComponent = widgetConfig.component;
     
     return (
-      <Card className={`${getSizeClass(widget.size)} h-full hover:shadow-lg transition-shadow duration-200 group`}>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center justify-between">
-            {widgetConfig.title}
+      <div className={`${getSizeClass(widget.size)} h-64 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200 group`}>
+        <div className="p-4 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-gray-900">{widgetConfig.title}</h3>
             <Button
               variant="ghost"
               size="sm"
@@ -271,12 +270,12 @@ export function CustomizableDashboard() {
             >
               <X className="h-3 w-3" />
             </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <WidgetComponent />
-        </CardContent>
-      </Card>
+          </div>
+          <div className="flex-1">
+            <WidgetComponent />
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -310,60 +309,72 @@ export function CustomizableDashboard() {
     .sort((a, b) => a.position - b.position);
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="min-h-screen bg-gray-50">
       {/* Dashboard Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-600">Monitor your barbershop performance</p>
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back to Home
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+              <p className="text-gray-600">Monitor your barbershop performance</p>
+            </div>
+          </div>
+          <WidgetCustomizer
+            widgets={widgets}
+            onToggleWidget={handleToggleWidget}
+            onAddWidget={handleAddWidget}
+            onRemoveWidget={handleRemoveWidget}
+          />
         </div>
-        <WidgetCustomizer
-          widgets={widgets}
-          onToggleWidget={handleToggleWidget}
-          onAddWidget={handleAddWidget}
-          onRemoveWidget={handleRemoveWidget}
-        />
       </div>
 
       {/* Widgets Grid */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext 
-          items={enabledWidgets.map(w => w.id)} 
-          strategy={rectSortingStrategy}
+      <div className="p-6">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {enabledWidgets.map((widget) => (
-              <SortableWidget key={widget.id} widget={widget}>
-                {renderWidget(widget)}
-              </SortableWidget>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+          <SortableContext 
+            items={enabledWidgets.map(w => w.id)} 
+            strategy={rectSortingStrategy}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {enabledWidgets.map((widget) => (
+                <SortableWidget key={widget.id} widget={widget}>
+                  {renderWidget(widget)}
+                </SortableWidget>
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
 
-      {enabledWidgets.length === 0 && (
-        <Card className="p-8 text-center">
-          <div className="space-y-4">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
-              <Settings className="w-8 h-8 text-gray-400" />
+        {enabledWidgets.length === 0 && (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+            <div className="space-y-4">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+                <Settings className="w-8 h-8 text-gray-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">No widgets enabled</h3>
+                <p className="text-gray-600">Customize your dashboard by adding widgets</p>
+              </div>
+              <WidgetCustomizer
+                widgets={widgets}
+                onToggleWidget={handleToggleWidget}
+                onAddWidget={handleAddWidget}
+                onRemoveWidget={handleRemoveWidget}
+              />
             </div>
-            <div>
-              <h3 className="text-lg font-medium">No widgets enabled</h3>
-              <p className="text-gray-600">Customize your dashboard by adding widgets</p>
-            </div>
-            <WidgetCustomizer
-              widgets={widgets}
-              onToggleWidget={handleToggleWidget}
-              onAddWidget={handleAddWidget}
-              onRemoveWidget={handleRemoveWidget}
-            />
           </div>
-        </Card>
-      )}
+        )}
+      </div>
     </div>
   );
 }

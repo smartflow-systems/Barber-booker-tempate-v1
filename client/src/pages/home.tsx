@@ -243,6 +243,16 @@ export default function Home() {
                   <CalendarPlus className="w-4 h-4 mr-3" />
                   Book Appointment
                 </Button>
+                <Link href="/dashboard">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="justify-start px-4 py-3 w-full hover:bg-teal-50 hover:text-teal-700 transition-all duration-300"
+                  >
+                    <Layout className="w-4 h-4 mr-3" />
+                    Dashboard
+                  </Button>
+                </Link>
                 <Button
                   variant={activeView === "features" ? "default" : "ghost"}
                   onClick={() => {
