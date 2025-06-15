@@ -181,18 +181,12 @@ function WidgetCustomizer({
 
 export function CustomizableDashboard() {
   const { toast } = useToast();
-  const [isEditMode, setIsEditMode] = useState(false);
   const [widgets, setWidgets] = useState<DashboardWidget[]>(() => {
     const saved = localStorage.getItem('dashboard-widgets');
     if (saved) {
       return JSON.parse(saved);
     }
-    return [
-      { id: '1', type: 'today-bookings', title: 'Today\'s Bookings', enabled: true, position: 0, size: 'medium' },
-      { id: '2', type: 'revenue', title: 'Revenue Overview', enabled: true, position: 1, size: 'medium' },
-      { id: '3', type: 'quick-stats', title: 'Quick Stats', enabled: true, position: 2, size: 'small' },
-      { id: '4', type: 'recent-clients', title: 'Recent Clients', enabled: true, position: 3, size: 'medium' },
-    ];
+    return DEFAULT_WIDGETS;
   });
 
   const getSizeClass = (size: 'small' | 'medium' | 'large') => {
@@ -228,11 +222,11 @@ export function CustomizableDashboard() {
 
   const setDefaultWidgets = () => {
     const defaultWidgets: DashboardWidget[] = [
-      { id: 'today-bookings-1', type: 'today-bookings', title: "Today's Bookings", enabled: true, position: 0, size: 'medium' },
-      { id: 'revenue-1', type: 'revenue', title: 'Revenue', enabled: true, position: 1, size: 'medium' },
-      { id: 'quick-actions-1', type: 'quick-actions', title: 'Quick Actions', enabled: true, position: 2, size: 'small' },
-      { id: 'recent-activity-1', type: 'recent-activity', title: 'Recent Activity', enabled: true, position: 3, size: 'medium' },
-      { id: 'performance-1', type: 'performance', title: 'Performance', enabled: true, position: 4, size: 'medium' },
+      { id: 'daily-earnings-1', type: 'daily-earnings', title: 'Daily Earnings Tracker', enabled: true, position: 0, size: 'medium' },
+      { id: 'achievements-1', type: 'achievements', title: 'Performance Achievements', enabled: true, position: 1, size: 'medium' },
+      { id: 'enhanced-actions-1', type: 'enhanced-actions', title: 'Quick Actions Pro', enabled: true, position: 2, size: 'medium' },
+      { id: 'today-bookings-1', type: 'today-bookings', title: "Today's Schedule", enabled: true, position: 3, size: 'medium' },
+      { id: 'recent-activity-1', type: 'recent-activity', title: 'Recent Activity', enabled: true, position: 4, size: 'medium' },
     ];
     setWidgets(defaultWidgets);
   };
@@ -280,35 +274,58 @@ export function CustomizableDashboard() {
 
     const WidgetComponent = widgetConfig.component;
     
-    return (
-      <div className={`${getSizeClass(widget.size)} h-64 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200 group ${isEditMode ? 'border-blue-200 shadow-sm' : ''}`}>
-        <div className="p-4 h-full flex flex-col">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              {isEditMode && (
-                <div className="text-gray-400 cursor-move">
-                  <GripVertical className="h-4 w-4" />
-                </div>
-              )}
-              <h3 className="text-sm font-medium text-gray-900">{widgetConfig.title}</h3>
-            </div>
-            {isEditMode && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleRemoveWidget(widget.id)}
-                className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
+    // Handle special widget types
+    switch (widget.type) {
+      case 'daily-earnings':
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
+            <DailyEarningsWidget />
           </div>
-          <div className="flex-1">
+        );
+      case 'achievements':
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
+            <AchievementsWidget />
+          </div>
+        );
+      case 'enhanced-actions':
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
+            <EnhancedQuickActionsWidget />
+          </div>
+        );
+      case 'today-bookings':
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
+            <TodayBookingsWidget />
+          </div>
+        );
+      case 'revenue':
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
+            <RevenueWidget />
+          </div>
+        );
+      case 'recent-activity':
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
+            <RecentActivityWidget />
+          </div>
+        );
+      case 'performance':
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
+            <PerformanceWidget />
+          </div>
+        );
+      default:
+        const WidgetComponent = widgetConfig.component;
+        return (
+          <div className={`${getSizeClass(widget.size)} h-64`}>
             <WidgetComponent />
           </div>
-        </div>
-      </div>
-    );
+        );
+    }
   };
 
   const sensors = useSensors(
@@ -354,84 +371,42 @@ export function CustomizableDashboard() {
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600">Monitor your barbershop performance</p>
+              <p className="text-gray-600">Your daily performance overview</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setIsEditMode(!isEditMode)}
-              variant={isEditMode ? "default" : "outline"}
-              size="sm"
-              className="gap-2"
-            >
-              {isEditMode ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  Exit Edit
-                </>
-              ) : (
-                <>
-                  <Edit3 className="w-4 h-4" />
-                  Edit Dashboard
-                </>
-              )}
-            </Button>
-            {isEditMode && (
-              <WidgetCustomizer
-                widgets={widgets}
-                onToggleWidget={handleToggleWidget}
-                onAddWidget={handleAddWidget}
-                onRemoveWidget={handleRemoveWidget}
-              />
-            )}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  Customize
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Customize Dashboard</SheetTitle>
+                </SheetHeader>
+                <WidgetCustomizer
+                  widgets={widgets}
+                  onToggleWidget={handleToggleWidget}
+                  onAddWidget={handleAddWidget}
+                  onRemoveWidget={handleRemoveWidget}
+                />
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
 
       {/* Widgets Grid */}
       <div className="p-6">
-        {isEditMode && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-2 text-blue-800">
-              <Edit3 className="w-4 h-4" />
-              <span className="text-sm font-medium">Edit Mode Active</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {enabledWidgets.map((widget) => (
+            <div key={widget.id} className={`${getSizeClass(widget.size)}`}>
+              {renderWidget(widget)}
             </div>
-            <p className="text-sm text-blue-600 mt-1">
-              Drag widgets to reorder them, click the X to remove, or use "Customize Dashboard" to add new widgets.
-            </p>
-          </div>
-        )}
-        
-        {isEditMode ? (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext 
-              items={enabledWidgets.map(w => w.id)} 
-              strategy={rectSortingStrategy}
-            >
-              <div className="widget-grid">
-                {enabledWidgets.map((widget) => (
-                  <SortableWidget key={widget.id} widget={widget}>
-                    <div className="dashboard-widget">
-                      {renderWidget(widget)}
-                    </div>
-                  </SortableWidget>
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        ) : (
-          <div className="widget-grid">
-            {enabledWidgets.map((widget) => (
-              <div key={widget.id} className="dashboard-widget">
-                {renderWidget(widget)}
-              </div>
-            ))}
-          </div>
-        )}
+          ))}
+        </div>
 
         {enabledWidgets.length === 0 && (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
@@ -441,7 +416,7 @@ export function CustomizableDashboard() {
               </div>
               <div>
                 <h3 className="text-lg font-medium text-gray-900">No widgets enabled</h3>
-                <p className="text-gray-600">Customize your dashboard by adding widgets</p>
+                <p className="text-gray-600">Use the Customize button to add widgets</p>
               </div>
               <WidgetCustomizer
                 widgets={widgets}
