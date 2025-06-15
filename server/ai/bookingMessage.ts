@@ -31,7 +31,7 @@ export async function generateBookingMessage(customerName: string, date: string,
   } catch (error) {
     console.error("Error generating AI message:", error);
     // Fallback to a standard professional message
-    return `Dear ${customerName}, your appointment is confirmed for ${date} at ${time}. We look forward to seeing you at our barbershop. Please arrive 5 minutes early. Thank you!`;
+    return `Dear ${customerName}, your appointment is confirmed for ${date} at ${time}. We look forward to providing you with exceptional service at BarberFlow Systems. Please arrive 5 minutes early. Thank you for choosing us!`;
   }
 }
 
