@@ -299,14 +299,15 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-slate-900 text-sm sm:text-base truncate">{barber.name}</div>
-                          <div className="text-xs sm:text-sm text-slate-500 truncate">{barber.title} • {barber.experience}</div>
+                          <div className="text-xs sm:text-sm text-slate-500 truncate" id={`barber-${barber.id}-desc`}>{barber.title} • {barber.experience}</div>
                           <div className="flex items-center mt-1">
-                            <div className="flex text-yellow-400 mr-2">
+                            <div className="flex text-yellow-400 mr-2" aria-label={`${barber.rating} out of 5 stars`}>
                               {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="w-2 h-2 sm:w-3 sm:h-3 fill-current" />
+                                <Star key={i} className="w-2 h-2 sm:w-3 sm:h-3 fill-current" aria-hidden="true" />
                               ))}
                             </div>
-                            <span className="text-xs text-slate-500">{barber.rating}</span>
+                            <span className="text-xs text-slate-500 sr-only">{barber.rating} out of 5 stars</span>
+                            <span className="text-xs text-slate-500" aria-hidden="true">{barber.rating}</span>
                           </div>
                         </div>
                       </label>
@@ -529,19 +530,23 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                   type="submit"
                   disabled={createBookingMutation.isPending}
                   className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  aria-describedby="submit-help"
                 >
                   {createBookingMutation.isPending ? (
                     <>
-                      <i className="fas fa-spinner fa-spin mr-3"></i>
-                      Booking Your Appointment...
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" aria-hidden="true"></div>
+                      <span aria-live="polite">Booking Your Appointment...</span>
                     </>
                   ) : (
                     <>
-                      <CalendarCheck className="mr-3 w-5 h-5" />
+                      <CalendarCheck className="mr-3 w-5 h-5" aria-hidden="true" />
                       Book Your Appointment
                     </>
                   )}
                 </Button>
+                <p id="submit-help" className="sr-only">
+                  Submit your booking request after completing all required fields
+                </p>
               </div>
 
               {/* WhatsApp Button */}
