@@ -180,7 +180,15 @@ export function CustomizableDashboard() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [widgets, setWidgets] = useState<DashboardWidget[]>(() => {
     const saved = localStorage.getItem('dashboard-widgets');
-    return saved ? JSON.parse(saved) : DEFAULT_WIDGETS;
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return [
+      { id: '1', type: 'today-bookings', title: 'Today\'s Bookings', enabled: true, position: 0, size: 'medium' },
+      { id: '2', type: 'revenue', title: 'Revenue Overview', enabled: true, position: 1, size: 'medium' },
+      { id: '3', type: 'quick-stats', title: 'Quick Stats', enabled: true, position: 2, size: 'small' },
+      { id: '4', type: 'recent-clients', title: 'Recent Clients', enabled: true, position: 3, size: 'medium' },
+    ];
   });
 
   const getSizeClass = (size: 'small' | 'medium' | 'large') => {
