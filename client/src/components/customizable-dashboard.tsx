@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Settings, GripVertical, Plus, X, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Settings, GripVertical, Plus, X, Eye, EyeOff, ArrowLeft, Edit3, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { 
@@ -44,6 +44,13 @@ interface DashboardWidget {
   position: number;
   size: 'small' | 'medium' | 'large';
 }
+
+const DEFAULT_WIDGETS: DashboardWidget[] = [
+  { id: '1', type: 'today-bookings', title: 'Today\'s Bookings', enabled: true, position: 0, size: 'medium' },
+  { id: '2', type: 'revenue', title: 'Revenue Overview', enabled: true, position: 1, size: 'medium' },
+  { id: '3', type: 'quick-stats', title: 'Quick Stats', enabled: true, position: 2, size: 'small' },
+  { id: '4', type: 'recent-clients', title: 'Recent Clients', enabled: true, position: 3, size: 'medium' },
+];
 
 // Sortable Widget Wrapper
 function SortableWidget({ widget, children }: { widget: DashboardWidget; children: React.ReactNode }) {
@@ -170,7 +177,11 @@ function WidgetCustomizer({
 
 export function CustomizableDashboard() {
   const { toast } = useToast();
-  const [widgets, setWidgets] = useState<DashboardWidget[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [widgets, setWidgets] = useState<DashboardWidget[]>(() => {
+    const saved = localStorage.getItem('dashboard-widgets');
+    return saved ? JSON.parse(saved) : DEFAULT_WIDGETS;
+  });
 
   const getSizeClass = (size: 'small' | 'medium' | 'large') => {
     switch (size) {
@@ -258,18 +269,27 @@ export function CustomizableDashboard() {
     const WidgetComponent = widgetConfig.component;
     
     return (
-      <div className={`${getSizeClass(widget.size)} h-64 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200 group`}>
+      <div className={`${getSizeClass(widget.size)} h-64 bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200 group ${isEditMode ? 'border-blue-200 shadow-sm' : ''}`}>
         <div className="p-4 h-full flex flex-col">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-medium text-gray-900">{widgetConfig.title}</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleRemoveWidget(widget.id)}
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <X className="h-3 w-3" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {isEditMode && (
+                <div className="text-gray-400 cursor-move">
+                  <GripVertical className="h-4 w-4" />
+                </div>
+              )}
+              <h3 className="text-sm font-medium text-gray-900">{widgetConfig.title}</h3>
+            </div>
+            {isEditMode && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleRemoveWidget(widget.id)}
+                className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           <div className="flex-1">
             <WidgetComponent />
@@ -325,35 +345,79 @@ export function CustomizableDashboard() {
               <p className="text-gray-600">Monitor your barbershop performance</p>
             </div>
           </div>
-          <WidgetCustomizer
-            widgets={widgets}
-            onToggleWidget={handleToggleWidget}
-            onAddWidget={handleAddWidget}
-            onRemoveWidget={handleRemoveWidget}
-          />
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setIsEditMode(!isEditMode)}
+              variant={isEditMode ? "default" : "outline"}
+              size="sm"
+              className="gap-2"
+            >
+              {isEditMode ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Exit Edit
+                </>
+              ) : (
+                <>
+                  <Edit3 className="w-4 h-4" />
+                  Edit Dashboard
+                </>
+              )}
+            </Button>
+            {isEditMode && (
+              <WidgetCustomizer
+                widgets={widgets}
+                onToggleWidget={handleToggleWidget}
+                onAddWidget={handleAddWidget}
+                onRemoveWidget={handleRemoveWidget}
+              />
+            )}
+          </div>
         </div>
       </div>
 
       {/* Widgets Grid */}
       <div className="p-6">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext 
-            items={enabledWidgets.map(w => w.id)} 
-            strategy={rectSortingStrategy}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {enabledWidgets.map((widget) => (
-                <SortableWidget key={widget.id} widget={widget}>
-                  {renderWidget(widget)}
-                </SortableWidget>
-              ))}
+        {isEditMode && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2 text-blue-800">
+              <Edit3 className="w-4 h-4" />
+              <span className="text-sm font-medium">Edit Mode Active</span>
             </div>
-          </SortableContext>
-        </DndContext>
+            <p className="text-sm text-blue-600 mt-1">
+              Drag widgets to reorder them, click the X to remove, or use "Customize Dashboard" to add new widgets.
+            </p>
+          </div>
+        )}
+        
+        {isEditMode ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext 
+              items={enabledWidgets.map(w => w.id)} 
+              strategy={rectSortingStrategy}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {enabledWidgets.map((widget) => (
+                  <SortableWidget key={widget.id} widget={widget}>
+                    {renderWidget(widget)}
+                  </SortableWidget>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {enabledWidgets.map((widget) => (
+              <div key={widget.id}>
+                {renderWidget(widget)}
+              </div>
+            ))}
+          </div>
+        )}
 
         {enabledWidgets.length === 0 && (
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
