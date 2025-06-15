@@ -272,11 +272,12 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                         value={barber.id}
                         className="sr-only peer"
                         checked={selectedBarber === barber.id}
+                        aria-describedby={`barber-${barber.id}-desc`}
                         onChange={() => {
                           setSelectedBarber(barber.id);
                           // Auto-scroll to date selection
                           setTimeout(() => {
-                            const dateSection = document.querySelector('[data-tour="date-selection"]');
+                            const dateSection = document.querySelector('[data-tour="date-selection"]') as HTMLElement;
                             if (dateSection) {
                               dateSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                               dateSection.style.border = '3px solid #14b8a6';
@@ -356,14 +357,14 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                             form.setValue("time", slot);
                             // Auto-scroll to service selection
                             setTimeout(() => {
-                              const serviceSection = document.getElementById('service-selection');
+                              const serviceSection = document.getElementById('service-selection') as HTMLElement;
                               if (serviceSection) {
                                 serviceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                (serviceSection as HTMLElement).style.border = '3px solid #14b8a6';
-                                (serviceSection as HTMLElement).style.borderRadius = '8px';
+                                serviceSection.style.border = '3px solid #14b8a6';
+                                serviceSection.style.borderRadius = '8px';
                                 setTimeout(() => {
-                                  (serviceSection as HTMLElement).style.border = '';
-                                  (serviceSection as HTMLElement).style.borderRadius = '';
+                                  serviceSection.style.border = '';
+                                  serviceSection.style.borderRadius = '';
                                 }, 2000);
                               }
                             }, 100);
@@ -486,11 +487,11 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
               </fieldset>
 
               {/* Service Selection */}
-              <div className="space-y-3" data-tour="service-selection" id="service-selection">
-                <Label className="text-lg font-semibold text-slate-800 flex items-center">
-                  <Star className="text-teal-600 mr-3 w-5 h-5" />
+              <fieldset className="space-y-3" data-tour="service-selection" id="service-selection" aria-labelledby="service-selection-legend">
+                <legend id="service-selection-legend" className="text-lg font-semibold text-slate-800 flex items-center">
+                  <Star className="text-teal-600 mr-3 w-5 h-5" aria-hidden="true" />
                   Select Service
-                </Label>
+                </legend>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {services.map((service) => (
                     <div key={service.id} className="relative">
@@ -502,6 +503,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                         className="sr-only peer"
                         checked={selectedService === service.id}
                         onChange={() => setSelectedService(service.id)}
+                        aria-describedby={`service-${service.id}-desc`}
                       />
                       <label
                         htmlFor={`service-${service.id}`}
@@ -509,7 +511,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                       >
                         <div>
                           <div className="font-medium text-slate-900">{service.name}</div>
-                          <div className="text-sm text-slate-500">{service.duration} min</div>
+                          <div className="text-sm text-slate-500" id={`service-${service.id}-desc`}>{service.duration} min</div>
                         </div>
                         <div className="text-lg font-bold text-teal-600">{formatPrice(service.price)}</div>
                       </label>
@@ -517,9 +519,9 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                   ))}
                 </div>
                 {form.formState.errors.serviceId && (
-                  <p className="text-sm text-red-500">{form.formState.errors.serviceId.message}</p>
+                  <p className="text-sm text-red-500" role="alert" aria-live="polite">{form.formState.errors.serviceId.message}</p>
                 )}
-              </div>
+              </fieldset>
 
               {/* Submit Button */}
               <div className="pt-6">
