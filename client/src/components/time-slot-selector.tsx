@@ -190,7 +190,10 @@ export function TimeSlotSelector({
                             ? "bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white border-teal-500 shadow-lg scale-105"
                             : "bg-slate-600 border-slate-500 text-white hover:bg-teal-600 hover:border-teal-500 hover:scale-105 active:scale-95"
                         }`}
-                        onClick={() => handleTimeSelect(time)}
+                        onClick={() => {
+                          console.log('🖱️ Button clicked for time:', time);
+                          handleTimeSelect(time);
+                        }}
                       >
                         <Clock className="w-4 h-4 mr-2" />
                         {formatTime(time)}
