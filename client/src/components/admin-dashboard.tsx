@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, DollarSign, Users, Clock, Edit, Trash2, Search, Mail, BarChart3, CreditCard, Package, UserCheck, Camera } from "lucide-react";
+import { Calendar, DollarSign, Users, Clock, Edit, Trash2, Search, Mail, BarChart3, CreditCard, Package, UserCheck, Camera, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EmailSetup } from "./email-setup";
 import { AnalyticsDashboard } from "./analytics-dashboard";
@@ -247,36 +247,38 @@ export function AdminDashboard() {
           </CardTitle>
           <p className="text-green-700 text-sm">Connect your Google Calendar to automatically sync bookings</p>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex-1">
                 <h3 className="font-semibold text-green-800">Calendar Sync Status</h3>
                 <p className="text-sm text-green-600">Sync bookings to your Google Calendar automatically</p>
               </div>
               <Button 
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto shrink-0"
                 onClick={() => window.open('/auth/google', '_blank')}
               >
-                Connect Google Calendar
+                Connect Calendar
               </Button>
             </div>
-            <div className="bg-blue-100 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
               <h4 className="font-medium text-blue-800 mb-2">Setup Instructions:</h4>
-              <ol className="text-sm text-blue-700 space-y-1">
-                <li>1. Go to Google Cloud Console {'->'} APIs & Services {'->'} Credentials</li>
+              <ol className="text-sm text-blue-700 space-y-2">
+                <li>1. Go to Google Cloud Console → APIs & Services → Credentials</li>
                 <li>2. Update your OAuth redirect URI to:</li>
-                <li className="font-mono text-xs bg-blue-50 p-1 rounded break-all">
-                  https://6c123100-69fa-459d-ab79-27598b38ceb3-00-jozcq38yiyhf.worf.replit.dev/auth/google/callback
+                <li className="bg-white border rounded p-2 mt-1">
+                  <code className="text-xs break-all select-all">
+                    {window.location.origin}/auth/google/callback
+                  </code>
                 </li>
-                <li>3. Click "Connect Google Calendar" after updating</li>
+                <li>3. Click "Connect Calendar" after updating</li>
               </ol>
             </div>
-            <div className="bg-green-100 border border-green-200 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 mb-2">Benefits of Calendar Integration:</h4>
-              <ul className="text-sm text-green-700 space-y-1">
-                <li>• Automatic booking synchronization</li>
-                <li>• Real-time calendar updates</li>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4">
+              <h4 className="font-medium text-green-800 mb-2">Benefits:</h4>
+              <ul className="text-sm text-green-700 space-y-1 grid grid-cols-1 sm:grid-cols-2 gap-1">
+                <li>• Auto booking sync</li>
+                <li>• Real-time updates</li>
                 <li>• Prevent double bookings</li>
                 <li>• Mobile calendar access</li>
               </ul>
@@ -412,38 +414,38 @@ export function AdminDashboard() {
 
       {/* Main Business Management Tabs */}
       <Tabs defaultValue="bookings" className="w-full">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="bookings" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Bookings
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
+          <TabsTrigger value="bookings" className="flex items-center gap-1 text-xs sm:text-sm">
+            <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Bookings</span>
           </TabsTrigger>
-          <TabsTrigger value="customers" className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Customers
+          <TabsTrigger value="customers" className="flex items-center gap-1 text-xs sm:text-sm">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Customers</span>
           </TabsTrigger>
-          <TabsTrigger value="payments" className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4" />
-            Payments
+          <TabsTrigger value="payments" className="flex items-center gap-1 text-xs sm:text-sm">
+            <CreditCard className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Payments</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Analytics
+          <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs sm:text-sm">
+            <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Analytics</span>
           </TabsTrigger>
-          <TabsTrigger value="marketing" className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Marketing
+          <TabsTrigger value="marketing" className="flex items-center gap-1 text-xs sm:text-sm">
+            <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Marketing</span>
           </TabsTrigger>
-          <TabsTrigger value="staff" className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4" />
-            Staff
+          <TabsTrigger value="staff" className="flex items-center gap-1 text-xs sm:text-sm">
+            <UserCheck className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Staff</span>
           </TabsTrigger>
-          <TabsTrigger value="inventory" className="flex items-center gap-2">
-            <Package className="w-4 h-4" />
-            Inventory
+          <TabsTrigger value="inventory" className="flex items-center gap-1 text-xs sm:text-sm">
+            <Package className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Inventory</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Settings
+          <TabsTrigger value="settings" className="flex items-center gap-1 text-xs sm:text-sm">
+            <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Settings</span>
           </TabsTrigger>
         </TabsList>
 
