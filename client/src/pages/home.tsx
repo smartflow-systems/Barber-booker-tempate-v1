@@ -82,7 +82,7 @@ export default function Home() {
       <div className={`absolute inset-0 ${overlayOpacity} transition-all duration-1000 pointer-events-none`}></div>
       
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200/50 relative overflow-hidden transition-all duration-500 z-20">
+      <header className="panel-overlay shadow-lg border-b border-slate-200/50 relative overflow-hidden transition-all duration-500 z-20">
         {/* Decorative barber elements */}
         <div className="absolute top-0 left-0 w-full h-full opacity-5">
           <div className="absolute top-2 left-20 text-4xl">✂️</div>
@@ -95,9 +95,9 @@ export default function Home() {
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-teal-600 via-teal-700 to-teal-800 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden border border-teal-500/20">
-                <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" viewBox="0 0 24 24" fill="none">
+                <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" viewBox="0 0 24 24" fill="none" preserveAspectRatio="xMidYMid meet">
                   <rect x="10" y="2" width="4" height="20" fill="currentColor" rx="2"/>
-                  <g className="barber-pole-animation">
+                  <g className="barber-pole-animation" style={{ transformOrigin: '12px 12px' }}>
                     <path d="M8 4l8 4-8 4 8 4-8 4" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" fill="none"/>
                     <path d="M10 4l4 2-4 2 4 2-4 2 4 2-4 2" stroke="rgba(239,68,68,0.9)" strokeWidth="2" fill="none"/>
                   </g>
@@ -303,8 +303,8 @@ export default function Home() {
           <div className="absolute bottom-10 right-10 text-4xl animate-bounce delay-700">🧴</div>
         </div>
         
-        {/* Dynamic time indicator */}
-        <div className="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-white/20">
+        {/* Dynamic time indicator - repositioned to avoid header clash */}
+        <div className="fixed top-20 right-4 z-40 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-slate-200/50">
           <div className="flex items-center gap-2 text-sm">
             {getTimeIcon()}
             <span className="font-medium text-slate-700">

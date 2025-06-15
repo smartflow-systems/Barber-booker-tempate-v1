@@ -10,14 +10,27 @@
 .barber-pole-animation {
   animation: barber-pole 2s linear infinite;
   will-change: transform;
+  transform-origin: center center;
 }
 
-/* Ensure consistent panel animations across screen sizes */
+/* Ensure consistent animations and panel weights across all screen sizes */
 @media (max-width: 1024px) {
   .barber-pole-animation {
     animation: barber-pole 2s linear infinite;
-    transform-origin: center;
+    transform-origin: center center;
   }
+}
+
+/* Fix panel layering and weight consistency */
+.time-background {
+  position: relative;
+  z-index: 1;
+}
+
+.panel-overlay {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Dynamic time-based backgrounds */

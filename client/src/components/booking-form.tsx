@@ -208,13 +208,18 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
     setSelectedTime(time);
     form.setValue("time", time);
     
-    // Scroll to next section (service selection) after time is selected
+    // Auto-advance to service selection after time is selected
     setTimeout(() => {
       const serviceSection = document.querySelector('[data-tour="service-selection"]');
       if (serviceSection) {
-        serviceSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        serviceSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Add visual highlight to service section
+        serviceSection.classList.add('ring-2', 'ring-teal-500', 'ring-opacity-50');
+        setTimeout(() => {
+          serviceSection.classList.remove('ring-2', 'ring-teal-500', 'ring-opacity-50');
+        }, 2000);
       }
-    }, 100);
+    }, 500);
   };
 
   return (
