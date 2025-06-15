@@ -217,7 +217,7 @@ export function BookingAssistant() {
               date: bookingData.date,
               time: bookingData.time,
               serviceId: bookingData.serviceId,
-              barberId: barbers[0]?.id || 1, // Default to first barber
+              barberId: (barbers as Barber[])[0]?.id || 1, // Default to first barber
               status: "confirmed"
             });
           } else {
