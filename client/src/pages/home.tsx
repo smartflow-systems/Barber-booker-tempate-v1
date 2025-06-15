@@ -291,14 +291,27 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        {/* Time-aware background decorative elements */}
+        <div className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 ${
+          timeOfDay === 'night' || timeOfDay === 'late-night' ? 'opacity-3' : 'opacity-8'
+        }`}>
           <div className="absolute top-10 left-10 text-6xl animate-bounce">💈</div>
           <div className="absolute top-20 right-20 text-4xl animate-pulse">✂️</div>
           <div className="absolute bottom-20 left-1/4 text-5xl animate-bounce delay-1000">🪒</div>
           <div className="absolute top-1/3 right-1/3 text-3xl animate-pulse delay-500">💺</div>
           <div className="absolute bottom-10 right-10 text-4xl animate-bounce delay-700">🧴</div>
+        </div>
+        
+        {/* Dynamic time indicator */}
+        <div className="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-white/20">
+          <div className="flex items-center gap-2 text-sm">
+            {getTimeIcon()}
+            <span className="font-medium text-slate-700">
+              {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+            <span className="text-xs text-slate-500 capitalize">{timeOfDay}</span>
+          </div>
         </div>
         
         {activeView === "booking" && (
