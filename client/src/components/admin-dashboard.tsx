@@ -410,8 +410,224 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Email Configuration */}
-      <EmailSetup />
+      {/* Main Business Management Tabs */}
+      <Tabs defaultValue="bookings" className="w-full">
+        <TabsList className="grid w-full grid-cols-8">
+          <TabsTrigger value="bookings" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Bookings
+          </TabsTrigger>
+          <TabsTrigger value="customers" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Customers
+          </TabsTrigger>
+          <TabsTrigger value="payments" className="flex items-center gap-2">
+            <CreditCard className="w-4 h-4" />
+            Payments
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="marketing" className="flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Marketing
+          </TabsTrigger>
+          <TabsTrigger value="staff" className="flex items-center gap-2">
+            <UserCheck className="w-4 h-4" />
+            Staff
+          </TabsTrigger>
+          <TabsTrigger value="inventory" className="flex items-center gap-2">
+            <Package className="w-4 h-4" />
+            Inventory
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Settings
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="bookings" className="mt-6">
+          {/* Existing bookings table content */}
+          <div className="space-y-6">
+            {/* Bookings Table */}
+            <Card className="shadow-xl border-0 bg-slate-800/95 backdrop-blur-sm">
+              <CardHeader className="border-b border-slate-600/50 bg-gradient-to-r from-slate-700 to-slate-600 rounded-t-lg">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl text-white">All Bookings</CardTitle>
+                  <div className="flex items-center space-x-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                      <Input
+                        placeholder="Search bookings..."
+                        className="pl-10 w-64"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="All Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="p-0">
+                {isLoading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p className="mt-2 text-slate-600">Loading bookings...</p>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Barber</TableHead>
+                        <TableHead>Service</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredBookings.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8 text-slate-500">
+                            No bookings found
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredBookings.map((booking) => {
+                          const serviceInfo = getServiceInfo(booking.serviceId);
+                          return (
+                            <TableRow key={booking.id} className="hover:bg-slate-50">
+                              <TableCell>
+                                <div className="flex items-center">
+                                  <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center mr-3">
+                                    <span className="text-teal-600 font-medium text-sm">
+                                      {booking.customerName.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">{booking.customerName}</div>
+                                    <div className="text-sm text-slate-500">{booking.customerPhone}</div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className="font-medium">{getBarberName(booking.barberId)}</span>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{serviceInfo.name}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{booking.date}</div>
+                                  <div className="text-sm text-slate-500">{formatTime(booking.time)}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className="font-medium text-green-600">
+                                  ${(serviceInfo.price / 100).toFixed(2)}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                {getStatusBadge(booking.status)}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center space-x-2">
+                                  <Select
+                                    value={booking.status}
+                                    onValueChange={(status) =>
+                                      updateBookingMutation.mutate({ id: booking.id, status })
+                                    }
+                                  >
+                                    <SelectTrigger className="w-28">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="confirmed">Confirm</SelectItem>
+                                      <SelectItem value="completed">Complete</SelectItem>
+                                      <SelectItem value="cancelled">Cancel</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => deleteBookingMutation.mutate(booking.id)}
+                                    disabled={deleteBookingMutation.isPending}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="customers" className="mt-6">
+          <CustomerManagement />
+        </TabsContent>
+
+        <TabsContent value="payments" className="mt-6">
+          <div className="space-y-6">
+            <PaymentProcessing />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Stripe Payment Demo</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <StripePayment />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-6">
+          <BusinessAnalytics />
+        </TabsContent>
+
+        <TabsContent value="marketing" className="mt-6">
+          <MarketingTools />
+        </TabsContent>
+
+        <TabsContent value="staff" className="mt-6">
+          <StaffManagement />
+        </TabsContent>
+
+        <TabsContent value="inventory" className="mt-6">
+          <InventoryManagement />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-6">
+          <div className="space-y-6">
+            <EmailSetup />
+            <AnalyticsDashboard />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
