@@ -96,11 +96,11 @@ export function BookingAssistant() {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      addAssistantMessage("Hi there! 👋 I'm your BarberFlow Systems booking assistant. I can help you book an appointment in two ways:\n\n1. 📅 I can guide you through booking right here\n2. 🔗 Or send you our booking link to choose everything yourself\n\nHow would you like to proceed?");
+      addAssistantMessage("Hi there! 👋 I'm your BarberFlow Systems expert assistant. I'm here to help with:\n\n💈 **Booking appointments** - Quick & easy scheduling\n🎯 **Service recommendations** - Find your perfect style\n💰 **Pricing information** - Transparent costs\n⏰ **Hours & availability** - When we're open\n📍 **Location & contact** - How to find us\n💡 **Professional styling advice** - Expert tips\n\nWhat can I help you with today? Just ask me anything about our barbershop services! ✂️");
     }
   }, [isOpen, messages.length]);
 
-  const detectUserIntent = (message: string): 'manual_booking' | 'assisted_booking' | 'provide_info' | 'unknown' => {
+  const detectUserIntent = (message: string): 'manual_booking' | 'assisted_booking' | 'provide_info' | 'general_question' | 'service_inquiry' | 'pricing' | 'hours' | 'location' | 'unknown' => {
     const lowerMessage = message.toLowerCase();
     
     if (lowerMessage.includes('link') || lowerMessage.includes('manual') || lowerMessage.includes('myself')) {
@@ -109,6 +109,36 @@ export function BookingAssistant() {
     
     if (lowerMessage.includes('book') || lowerMessage.includes('appointment') || lowerMessage.includes('help me')) {
       return 'assisted_booking';
+    }
+
+    // Service and styling questions
+    if (lowerMessage.includes('haircut') || lowerMessage.includes('beard') || lowerMessage.includes('trim') || 
+        lowerMessage.includes('style') || lowerMessage.includes('service') || lowerMessage.includes('what do you offer')) {
+      return 'service_inquiry';
+    }
+
+    // Pricing questions
+    if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('how much') || 
+        lowerMessage.includes('fee') || lowerMessage.includes('charge')) {
+      return 'pricing';
+    }
+
+    // Hours and availability
+    if (lowerMessage.includes('hours') || lowerMessage.includes('open') || lowerMessage.includes('close') || 
+        lowerMessage.includes('when') || lowerMessage.includes('available')) {
+      return 'hours';
+    }
+
+    // Location and contact
+    if (lowerMessage.includes('location') || lowerMessage.includes('address') || lowerMessage.includes('where') || 
+        lowerMessage.includes('contact') || lowerMessage.includes('phone')) {
+      return 'location';
+    }
+
+    // General questions
+    if (lowerMessage.includes('?') || lowerMessage.includes('how') || lowerMessage.includes('what') || 
+        lowerMessage.includes('why') || lowerMessage.includes('tell me')) {
+      return 'general_question';
     }
     
     // Check if user is providing booking information
@@ -171,6 +201,58 @@ export function BookingAssistant() {
     return missing;
   };
 
+  const getServiceInfo = () => {
+    const serviceList = services as Service[];
+    if (serviceList.length === 0) {
+      return "💈 **Our Services:**\n\n• Classic Haircuts - Traditional and modern styles\n• Beard Trimming & Styling - Professional grooming\n• Hot Towel Treatments - Luxury experience\n• Hair Washing & Conditioning - Complete care\n\nAll services include a consultation to ensure you get exactly what you're looking for! ✂️";
+    }
+    
+    return `💈 **Our Services:**\n\n${serviceList.map(service => 
+      `• **${service.name}** - ${service.duration}min appointment`
+    ).join('\n')}\n\n✨ All services include professional consultation and styling advice!`;
+  };
+
+  const getPricingInfo = () => {
+    const serviceList = services as Service[];
+    if (serviceList.length === 0) {
+      return "💰 **Pricing:**\n\n• Classic Haircut: $35-45\n• Beard Trim: $25-35\n• Combo Package: $55-70\n• Premium Services: $75+\n\n*Prices may vary based on length and complexity. We'll discuss pricing during your consultation! 💳";
+    }
+    
+    return `💰 **Our Pricing:**\n\n${serviceList.map(service => 
+      `• **${service.name}**: Starting from $${service.price || '35'}`
+    ).join('\n')}\n\n*Final pricing confirmed during consultation based on your specific needs! 💳`;
+  };
+
+  const getHoursInfo = () => {
+    return "⏰ **Business Hours:**\n\n• Monday - Friday: 9:00 AM - 7:00 PM\n• Saturday: 8:00 AM - 6:00 PM\n• Sunday: 10:00 AM - 4:00 PM\n\n📅 We're open 7 days a week to serve you! Last appointments are scheduled 1 hour before closing.";
+  };
+
+  const getLocationInfo = () => {
+    return "📍 **Location & Contact:**\n\n• **Address:** BarberFlow Systems Professional Barbershop\n• **Phone:** (555) 123-FLOW\n• **Email:** info@barberflowsystems.com\n\n🚗 Free parking available\n🚌 Public transport accessible\n♿ Wheelchair accessible facility\n\nYou can also book online 24/7 through our booking system!";
+  };
+
+  const getGeneralAdvice = (message: string) => {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes('face shape') || lowerMessage.includes('what style')) {
+      return "🎯 **Choosing the Right Style:**\n\n• **Round Face:** Angular cuts, side parts, volume on top\n• **Square Face:** Softer lines, textured styles\n• **Oval Face:** Most styles work great!\n• **Long Face:** Fuller sides, horizontal lines\n\n💡 Our experienced barbers will analyze your face shape, hair type, and lifestyle during consultation to recommend the perfect cut for you!";
+    }
+    
+    if (lowerMessage.includes('maintenance') || lowerMessage.includes('how often')) {
+      return "🔄 **Haircut Maintenance:**\n\n• **Short styles:** Every 3-4 weeks\n• **Medium length:** Every 4-6 weeks\n• **Longer styles:** Every 6-8 weeks\n• **Beard trims:** Every 2-3 weeks\n\n💡 Regular maintenance keeps your style looking sharp and healthy!";
+    }
+    
+    if (lowerMessage.includes('products') || lowerMessage.includes('hair care')) {
+      return "🧴 **Professional Hair Care Tips:**\n\n• Use quality shampoo suited to your hair type\n• Apply conditioner to mid-lengths and ends\n• Use styling products sparingly\n• Protect hair from heat damage\n\n✨ We use and recommend premium products from leading brands. Our barbers can suggest the best products for your hair type!";
+    }
+    
+    if (lowerMessage.includes('first time') || lowerMessage.includes('what to expect')) {
+      return "🌟 **First Visit Guide:**\n\n• Arrive 5-10 minutes early\n• Bring reference photos if you have them\n• We'll discuss your lifestyle and preferences\n• Professional consultation included\n• Relaxing hot towel treatment\n\n💡 Don't worry - our experienced team will make you feel comfortable and ensure you leave looking and feeling great!";
+    }
+    
+    return "🤔 That's a great question! I'm here to help with:\n\n• 📅 Booking appointments\n• 💈 Service information\n• 💰 Pricing details\n• ⏰ Business hours\n• 📍 Location & contact info\n• 💡 Styling advice\n\nWhat would you like to know more about?";
+  };
+
   const handleSendMessage = () => {
     if (!currentMessage.trim()) return;
 
@@ -186,6 +268,26 @@ export function BookingAssistant() {
       case 'assisted_booking':
         addAssistantMessage("Great! I'll help you book your appointment. 📋 I'll need a few details:\n\n• Your full name\n• Phone number\n• Email address\n• Preferred date\n• Preferred time\n• Service (Haircut, Beard Trim, or both)\n\nYou can share all this info in one message or we can go step by step. What works better for you?");
         setConversationState('collecting');
+        break;
+
+      case 'service_inquiry':
+        addAssistantMessage(getServiceInfo() + "\n\n📞 Would you like to book one of these services?");
+        break;
+
+      case 'pricing':
+        addAssistantMessage(getPricingInfo() + "\n\n💡 Ready to book your appointment?");
+        break;
+
+      case 'hours':
+        addAssistantMessage(getHoursInfo() + "\n\n📅 Would you like to schedule an appointment during these hours?");
+        break;
+
+      case 'location':
+        addAssistantMessage(getLocationInfo() + "\n\n🗺️ Need directions or ready to book your visit?");
+        break;
+
+      case 'general_question':
+        addAssistantMessage(getGeneralAdvice(currentMessage));
         break;
 
       case 'provide_info':
@@ -226,7 +328,7 @@ export function BookingAssistant() {
             setBookingData({});
           }
         } else {
-          addAssistantMessage("I'd be happy to help you book an appointment! Would you like me to:\n\n1. 📋 Guide you through booking here\n2. 🔗 Send you our booking link\n\nJust let me know your preference!");
+          addAssistantMessage("I'd be happy to help you! I can assist with:\n\n• 📅 **Booking appointments** - Let me guide you through it\n• 💈 **Service information** - Learn about our offerings\n• 💰 **Pricing details** - Get cost information\n• ⏰ **Hours & availability** - When we're open\n• 📍 **Location & contact** - How to reach us\n• 💡 **Styling advice** - Professional tips\n\nWhat would you like to know about?");
         }
         break;
     }
