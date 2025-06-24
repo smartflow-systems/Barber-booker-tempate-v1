@@ -70,7 +70,7 @@ export function BookingAssistant() {
 
   const addMessage = (type: 'user' | 'assistant', content: string) => {
     const newMessage: Message = {
-      id: Date.now().toString(),
+      id: `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       type,
       content,
       timestamp: new Date()
@@ -245,7 +245,7 @@ export function BookingAssistant() {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-teal-500 hover:bg-teal-600 shadow-lg z-50"
+        className="fixed bottom-4 right-4 h-14 w-14 rounded-full bg-teal-500 hover:bg-teal-600 shadow-lg z-[9999]"
         size="icon"
       >
         <MessageCircle className="h-6 w-6 text-white" />
@@ -254,8 +254,14 @@ export function BookingAssistant() {
   }
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 h-[500px] shadow-xl z-50 flex flex-col">
-      <CardHeader className="flex flex-row items-center justify-between p-4 bg-teal-500 text-white rounded-t-lg">
+    <Card 
+      className="fixed bottom-4 right-4 w-96 shadow-xl z-[9999] flex flex-col"
+      style={{
+        height: 'min(500px, calc(100vh - 2rem))',
+        maxHeight: 'calc(100vh - 2rem)'
+      }}
+    >
+      <CardHeader className="flex flex-row items-center justify-between p-4 bg-teal-500 text-white rounded-t-lg flex-shrink-0">
         <CardTitle className="text-lg font-semibold">BarberFlow Assistant</CardTitle>
         <Button
           variant="ghost"
@@ -267,8 +273,8 @@ export function BookingAssistant() {
         </Button>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-4">
+      <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+        <ScrollArea className="flex-1 p-4 min-h-0">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -286,7 +292,7 @@ export function BookingAssistant() {
                   className={`max-w-[80%] p-3 rounded-lg whitespace-pre-wrap ${
                     message.type === 'user'
                       ? 'bg-teal-500 text-white ml-auto'
-                      : 'bg-gray-100 text-gray-900'
+                      : 'bg-white bg-opacity-90 text-gray-900 backdrop-blur-sm'
                   }`}
                 >
                   {message.content}
@@ -302,7 +308,7 @@ export function BookingAssistant() {
           </div>
         </ScrollArea>
         
-        <div className="p-4 border-t">
+        <div className="p-4 border-t flex-shrink-0 bg-white bg-opacity-90 backdrop-blur-sm">
           <div className="flex gap-2">
             <Input
               value={currentMessage}
