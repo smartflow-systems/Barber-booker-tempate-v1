@@ -2,23 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global light green background for all pages */
+/* Global glass gray background for all pages */
 html, body {
   background: linear-gradient(135deg, 
-    #f0f4f1 0%, 
-    #e8f0ea 30%, 
-    #d5e7d9 70%, 
-    #c2dcc7 100%
+    #f8f9fa 0%, 
+    #e9ecef 25%, 
+    #dee2e6 50%, 
+    #ced4da 75%,
+    #adb5bd 100%
   );
   min-height: 100vh;
 }
 
 #root {
   background: linear-gradient(135deg, 
-    #f0f4f1 0%, 
-    #e8f0ea 30%, 
-    #d5e7d9 70%, 
-    #c2dcc7 100%
+    #f8f9fa 0%, 
+    #e9ecef 25%, 
+    #dee2e6 50%, 
+    #ced4da 75%,
+    #adb5bd 100%
   );
   min-height: 100vh;
 }
@@ -42,20 +44,106 @@ html, body {
   z-index: 1;
 }
 
-/* Light green background for consistent theming */
+/* Glass gray background for consistent theming */
 .light-green-bg {
   background: linear-gradient(135deg, 
-    #f0f4f1 0%, 
-    #e8f0ea 30%, 
-    #d5e7d9 70%, 
-    #c2dcc7 100%
+    #f8f9fa 0%, 
+    #e9ecef 25%, 
+    #dee2e6 50%, 
+    #ced4da 75%,
+    #adb5bd 100%
   );
 }
 
+/* Glass effect panel styling */
 .panel-overlay {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(248, 249, 250, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Global glass gray styling for cards and containers */
+.glass-card {
+  background: rgba(248, 249, 250, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Override default card styling */
+[data-radix-popper-content-wrapper], 
+.bg-card,
+.bg-background,
+.bg-white,
+.bg-popover,
+.bg-muted {
+  background: rgba(248, 249, 250, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Calendar and date picker styling */
+.rdp,
+.rdp-table,
+.rdp-month,
+.rdp-day,
+.rdp-cell,
+.rdp-head,
+.rdp-tbody,
+.rdp-caption {
+  background: rgba(248, 249, 250, 0.9) !important;
+}
+
+/* Dialog and modal styling */
+[data-state="open"],
+.dialog-content,
+.sheet-content,
+.popover-content {
+  background: rgba(248, 249, 250, 0.95) !important;
+  backdrop-filter: blur(15px) !important;
+  -webkit-backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Input and form styling */
+.form-control,
+input,
+textarea,
+select,
+.select-content,
+.select-item {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Button glass effects */
+.button-glass {
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Table and list styling */
+.table,
+.list-item,
+.card-header,
+.card-content,
+.card-footer {
+  background: rgba(248, 249, 250, 0.8) !important;
+}
+
+/* Toaster and notification styling */
+.toast,
+.sonner-toast {
+  background: rgba(248, 249, 250, 0.95) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 /* Dashboard widget animations */
