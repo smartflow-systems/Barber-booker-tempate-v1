@@ -27,10 +27,10 @@ import {
 } from "lucide-react";
 import type { Client, Booking, Service, Package as ServicePackage } from "@shared/schema";
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Initialize Stripe only if public key is available
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+  : null;
 
 interface StripePaymentProps {
   booking?: Booking;
@@ -39,6 +39,39 @@ interface StripePaymentProps {
 }
 
 export function StripePayment({ booking, client, onPaymentComplete }: StripePaymentProps) {
+  // Show fallback UI if Stripe is not configured
+  if (!stripePromise) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Payment Processing
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <p className="text-amber-800 mb-2">Payment processing is currently unavailable.</p>
+              <p className="text-sm text-amber-600">
+                Please contact the barbershop directly to complete your payment.
+              </p>
+            </div>
+            {onPaymentComplete && (
+              <Button 
+                onClick={() => onPaymentComplete({ success: false, manual: true })}
+                className="mt-4"
+                variant="outline"
+              >
+                Continue Without Payment
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Elements stripe={stripePromise}>
       <PaymentInterface 

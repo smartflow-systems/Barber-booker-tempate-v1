@@ -9,12 +9,16 @@ import { insertBookingSchema, insertClientSchema, insertServiceSchema, insertBar
 import connectPgSimple from "connect-pg-simple";
 import Stripe from "stripe";
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+// Initialize Stripe only if API key is provided
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2025-05-28.basil",
+  });
+  console.log('[Stripe] Initialized successfully');
+} else {
+  console.warn('[Stripe] API key not provided - payment features will be disabled');
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-10-16",
-});
 
 export async function registerRoutes(app: Express) {
   const server = createServer(app);
@@ -242,6 +246,13 @@ export async function registerRoutes(app: Express) {
   // Stripe payment route for payment intents
   app.post("/api/create-payment-intent", async (req, res) => {
     try {
+      if (!stripe) {
+        return res.status(503).json({ 
+          error: "Payment processing unavailable", 
+          message: "Stripe API key not configured" 
+        });
+      }
+
       const { amount, currency = "usd", description, bookingId, clientId, paymentType } = req.body;
       
       if (!amount || amount <= 0) {
