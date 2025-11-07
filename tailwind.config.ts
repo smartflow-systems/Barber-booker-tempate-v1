@@ -11,6 +11,18 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        // SFS Brand Colors
+        brown: { 900: "#4B2E2E" },
+        black: { 900: "#0A0A0A" },
+        gold: {
+          100: "#FFF7CC",
+          300: "#FFE58A",
+          500: "#FFD700",
+          600: "#E6C200",
+          700: "#B58E00",
+          800: "#7A5A00"
+        },
+        // Semantic Colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
