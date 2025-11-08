@@ -28,7 +28,7 @@ function Router() {
 function App() {
   return (
     <div className="min-h-screen" style={{
-      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 25%, #dee2e6 50%, #ced4da 75%, #adb5bd 100%)'
+      background: 'linear-gradient(135deg, #4B2E2E 0%, #3A2424 30%, #2B1A1A 70%, #1A0F0F 100%)'
     }}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
