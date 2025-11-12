@@ -9,6 +9,7 @@ import { googleAuthService } from "../auth/google";
 import { insertBookingSchema, insertClientSchema, insertServiceSchema, insertBarberSchema, insertAdminUserSchema, type Booking } from "../../shared/schema";
 import connectPgSimple from "connect-pg-simple";
 import Stripe from "stripe";
+import { helmetConfig, corsConfig, apiLimiter, authLimiter, sanitizeInput } from "../middleware/security";
 
 // Initialize Stripe only if API key is provided
 let stripe: Stripe | null = null;
@@ -100,6 +101,13 @@ export async function registerRoutes(app: Express) {
     }
   }
 
+  // Security middleware
+  app.use(helmetConfig);
+  app.use(corsConfig);
+
+  // Input sanitization
+  app.use(sanitizeInput);
+
   // Session configuration
   const pgSession = connectPgSimple(session);
   app.use(session({
@@ -111,9 +119,10 @@ export async function registerRoutes(app: Express) {
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Set to true in production with HTTPS
+      secure: process.env.NODE_ENV === 'production', // Enable secure cookies in production
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'strict', // CSRF protection via SameSite cookie attribute
     },
   }));
 
@@ -135,7 +144,7 @@ export async function registerRoutes(app: Express) {
   };
 
   // Admin Authentication Routes
-  app.post("/api/admin/login", async (req, res) => {
+  app.post("/api/admin/login", authLimiter, async (req, res) => {
     try {
       const { username, password } = req.body;
 
@@ -161,7 +170,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/logout", requireAuth, async (req, res) => {
+  app.post("/api/admin/logout", apiLimiter, requireAuth, async (req, res) => {
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ error: "Logout failed" });
@@ -170,7 +179,7 @@ export async function registerRoutes(app: Express) {
     });
   });
 
-  app.get("/api/admin/user", requireAuth, async (req, res) => {
+  app.get("/api/admin/user", apiLimiter, requireAuth, async (req, res) => {
     const user = req.session.adminUser;
     if (!user) {
       return res.status(401).json({ error: "User not found in session" });
@@ -185,7 +194,7 @@ export async function registerRoutes(app: Express) {
     });
   });
 
-  app.get("/api/admin/google-token", requireAuth, async (req, res) => {
+  app.get("/api/admin/google-token", apiLimiter, requireAuth, async (req, res) => {
     try {
       const user = req.session.adminUser;
       if (!user) {
@@ -199,7 +208,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/admin/google-disconnect", requireAuth, async (req, res) => {
+  app.delete("/api/admin/google-disconnect", apiLimiter, requireAuth, async (req, res) => {
     try {
       const user = req.session.adminUser;
       if (!user) {
@@ -214,7 +223,7 @@ export async function registerRoutes(app: Express) {
   });
 
   // Barbers
-  app.get("/api/barbers", async (_req, res) => {
+  app.get("/api/barbers", apiLimiter, async (_req, res) => {
     try {
       const barbers = await storage.getBarbers();
       res.json(barbers);
@@ -224,7 +233,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/bookings", async (req, res) => {
+  app.post("/api/bookings", apiLimiter, async (req, res) => {
   try {
     // ✅ Step 1: Validate and store booking
     const bookingData = insertBookingSchema.parse(req.body);
@@ -254,7 +263,7 @@ export async function registerRoutes(app: Express) {
 });
 
   // Stripe payment route for payment intents
-  app.post("/api/create-payment-intent", async (req, res) => {
+  app.post("/api/create-payment-intent", apiLimiter, async (req, res) => {
     try {
       if (!stripe) {
         return res.status(503).json({ 
@@ -297,7 +306,7 @@ export async function registerRoutes(app: Express) {
   });
 
   // Test email endpoint
-  app.post("/api/test-email", async (req, res) => {
+  app.post("/api/test-email", apiLimiter, async (req, res) => {
     try {
       const { email, message } = req.body;
       
@@ -320,7 +329,7 @@ export async function registerRoutes(app: Express) {
   });
 
   // Services
-  app.get("/api/services", async (_req, res) => {
+  app.get("/api/services", apiLimiter, async (_req, res) => {
     try {
       const services = await storage.getServices();
       res.json(services);
@@ -330,7 +339,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/services", async (req, res) => {
+  app.post("/api/services", apiLimiter, async (req, res) => {
     try {
       const service = insertServiceSchema.parse(req.body);
       const newService = await storage.createService(service);
@@ -342,7 +351,7 @@ export async function registerRoutes(app: Express) {
   });
 
   // Bookings
-  app.get("/api/bookings", async (_req, res) => {
+  app.get("/api/bookings", apiLimiter, async (_req, res) => {
     try {
       const bookings = await storage.getBookings();
       res.json(bookings);
@@ -352,7 +361,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.get("/api/bookings/date/:date", async (req, res) => {
+  app.get("/api/bookings/date/:date", apiLimiter, async (req, res) => {
     try {
       const { date } = req.params;
       const bookings = await storage.getBookingsByDate(date);
@@ -363,7 +372,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.get("/api/bookings/barber/:barberId/date/:date", async (req, res) => {
+  app.get("/api/bookings/barber/:barberId/date/:date", apiLimiter, async (req, res) => {
     try {
       const { barberId, date } = req.params;
       const bookings = await storage.getBookingsByBarberAndDate(parseInt(barberId), date);
@@ -374,22 +383,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  // POST /api/bookings - Create a new booking
-  app.post("/api/bookings", async (req, res) => {
-    try {
-      const bookingData = insertBookingSchema.parse(req.body);
-      const booking = await storage.createBooking(bookingData);
-      await createCalendarEvent(booking);
-      const message = await generateBookingMessage(booking.customerName, booking.date, booking.time);
-      if (booking.customerEmail) await sendEmailConfirmation(booking.customerEmail, message);
-      res.json({ ...booking, aiMessage: message });
-    } catch (error) {
-      console.error("Error creating booking:", error);
-      res.status(400).json({ error: "Failed to create booking" });
-    }
-  });
-
-  app.patch("/api/bookings/:id", async (req, res) => {
+  app.patch("/api/bookings/:id", apiLimiter, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
@@ -405,7 +399,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/bookings/:id", async (req, res) => {
+  app.delete("/api/bookings/:id", apiLimiter, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const success = await storage.deleteBooking(id);
@@ -421,7 +415,7 @@ export async function registerRoutes(app: Express) {
   });
 
   // Availability - Get available time slots for a barber on a specific date
-  app.get("/api/availability", async (req, res) => {
+  app.get("/api/availability", apiLimiter, async (req, res) => {
     try {
       const { barberId, date } = req.query;
 
@@ -451,7 +445,7 @@ export async function registerRoutes(app: Express) {
   });
 
   // Clients
-  app.get("/api/clients", async (_req, res) => {
+  app.get("/api/clients", apiLimiter, async (_req, res) => {
     try {
       const clients = await storage.getClients();
       res.json(clients);
@@ -461,7 +455,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/clients", async (req, res) => {
+  app.post("/api/clients", apiLimiter, async (req, res) => {
     try {
       const client = insertClientSchema.parse(req.body);
       const newClient = await storage.createClient(client);
@@ -472,7 +466,7 @@ export async function registerRoutes(app: Express) {
     }
   });
 
-  app.patch("/api/clients/:id", async (req, res) => {
+  app.patch("/api/clients/:id", apiLimiter, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
