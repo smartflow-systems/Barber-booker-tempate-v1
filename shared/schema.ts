@@ -50,6 +50,8 @@ export const clients = pgTable("clients", {
   name: text("name").notNull(),
   phone: text("phone").notNull().unique(),
   email: text("email"),
+  password: text("password"), // hashed password for customer login
+  emailVerified: boolean("email_verified").default(false),
   preferredBarberId: integer("preferred_barber_id"),
   preferences: text("preferences"),
   notes: text("notes"),
@@ -61,6 +63,7 @@ export const clients = pgTable("clients", {
   profilePhoto: text("profile_photo"),
   lastVisit: timestamp("last_visit"),
   totalSpent: integer("total_spent").default(0), // in cents
+  notificationPreferences: jsonb("notification_preferences"), // email, sms preferences
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -220,6 +223,97 @@ export const bookings = pgTable("bookings", {
   reminderSent: timestamp("reminder_sent"),
   depositAmount: integer("deposit_amount").default(0),
   googleEventId: text("google_event_id"), // For calendar sync
+  discountCode: text("discount_code"), // applied discount code
+  discountAmount: integer("discount_amount").default(0), // discount amount in cents
+  finalAmount: integer("final_amount"), // final amount after discount in cents
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Reviews table for customer feedback
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id).notNull(),
+  barberId: integer("barber_id").references(() => barbers.id, { onDelete: "cascade" }).notNull(),
+  bookingId: integer("booking_id").references(() => bookings.id, { onDelete: "cascade" }),
+  serviceId: integer("service_id").references(() => services.id),
+  rating: integer("rating").notNull(), // 1-5 stars
+  comment: text("comment"),
+  isAnonymous: boolean("is_anonymous").default(false),
+  isApproved: boolean("is_approved").default(true),
+  isPublished: boolean("is_published").default(true),
+  adminResponse: text("admin_response"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Discount codes and promotions
+export const discountCodes = pgTable("discount_codes", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  description: text("description"),
+  type: text("type").notNull(), // "percentage", "fixed_amount", "service_discount"
+  value: integer("value").notNull(), // percentage (0-100) or amount in cents
+  minPurchase: integer("min_purchase").default(0), // minimum purchase amount in cents
+  maxDiscount: integer("max_discount"), // max discount amount for percentage type
+  usageLimit: integer("usage_limit"), // total usage limit
+  usageCount: integer("usage_count").default(0),
+  perClientLimit: integer("per_client_limit").default(1), // usage limit per client
+  validFrom: timestamp("valid_from").defaultNow(),
+  validUntil: timestamp("valid_until"),
+  isActive: boolean("is_active").default(true),
+  applicableServices: text("applicable_services").array(), // service IDs
+  firstTimeOnly: boolean("first_time_only").default(false), // only for new clients
+  createdBy: integer("created_by").references(() => adminUsers.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Track discount code usage
+export const discountUsage = pgTable("discount_usage", {
+  id: serial("id").primaryKey(),
+  discountCodeId: integer("discount_code_id").references(() => discountCodes.id, { onDelete: "cascade" }).notNull(),
+  clientId: integer("client_id").references(() => clients.id).notNull(),
+  bookingId: integer("booking_id").references(() => bookings.id, { onDelete: "cascade" }),
+  discountAmount: integer("discount_amount").notNull(), // in cents
+  usedAt: timestamp("used_at").defaultNow(),
+});
+
+// Reminder settings and templates
+export const reminderTemplates = pgTable("reminder_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // "email", "sms"
+  triggerHours: integer("trigger_hours").notNull(), // hours before appointment (e.g., 24, 48)
+  subject: text("subject"), // for email
+  message: text("message").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Log of sent reminders
+export const reminderLogs = pgTable("reminder_logs", {
+  id: serial("id").primaryKey(),
+  bookingId: integer("booking_id").references(() => bookings.id, { onDelete: "cascade" }).notNull(),
+  templateId: integer("template_id").references(() => reminderTemplates.id),
+  type: text("type").notNull(), // "email", "sms"
+  recipient: text("recipient").notNull(), // email or phone
+  status: text("status").notNull().default("pending"), // "pending", "sent", "failed", "delivered"
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Staff break times
+export const staffBreaks = pgTable("staff_breaks", {
+  id: serial("id").primaryKey(),
+  barberId: integer("barber_id").references(() => barbers.id, { onDelete: "cascade" }).notNull(),
+  scheduleId: integer("schedule_id").references(() => staffSchedule.id, { onDelete: "cascade" }),
+  date: text("date").notNull(), // YYYY-MM-DD format
+  startTime: text("start_time").notNull(), // HH:MM format
+  endTime: text("end_time").notNull(), // HH:MM format
+  breakType: text("break_type").notNull(), // "lunch", "break", "custom"
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -305,6 +399,40 @@ export const insertRetailSaleSchema = createInsertSchema(retailSales).omit({
   soldAt: true,
 });
 
+export const insertReviewSchema = createInsertSchema(reviews).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDiscountCodeSchema = createInsertSchema(discountCodes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDiscountUsageSchema = createInsertSchema(discountUsage).omit({
+  id: true,
+  usedAt: true,
+});
+
+export const insertReminderTemplateSchema = createInsertSchema(reminderTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertReminderLogSchema = createInsertSchema(reminderLogs).omit({
+  id: true,
+  createdAt: true,
+  sentAt: true,
+  deliveredAt: true,
+});
+
+export const insertStaffBreakSchema = createInsertSchema(staffBreaks).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertBarber = z.infer<typeof insertBarberSchema>;
 export type Barber = typeof barbers.$inferSelect;
 
@@ -352,3 +480,21 @@ export type Inventory = typeof inventory.$inferSelect;
 
 export type InsertRetailSale = z.infer<typeof insertRetailSaleSchema>;
 export type RetailSale = typeof retailSales.$inferSelect;
+
+export type InsertReview = z.infer<typeof insertReviewSchema>;
+export type Review = typeof reviews.$inferSelect;
+
+export type InsertDiscountCode = z.infer<typeof insertDiscountCodeSchema>;
+export type DiscountCode = typeof discountCodes.$inferSelect;
+
+export type InsertDiscountUsage = z.infer<typeof insertDiscountUsageSchema>;
+export type DiscountUsage = typeof discountUsage.$inferSelect;
+
+export type InsertReminderTemplate = z.infer<typeof insertReminderTemplateSchema>;
+export type ReminderTemplate = typeof reminderTemplates.$inferSelect;
+
+export type InsertReminderLog = z.infer<typeof insertReminderLogSchema>;
+export type ReminderLog = typeof reminderLogs.$inferSelect;
+
+export type InsertStaffBreak = z.infer<typeof insertStaffBreakSchema>;
+export type StaffBreak = typeof staffBreaks.$inferSelect;

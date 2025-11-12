@@ -5,9 +5,22 @@ import bcrypt from "bcrypt";
 import { createServer } from "http";
 import { storage } from "../storage";
 import { googleAuthService } from "../auth/google";
-import { insertBookingSchema, insertClientSchema, insertServiceSchema, insertBarberSchema, insertAdminUserSchema, type Booking } from "../../shared/schema";
+import {
+  insertBookingSchema,
+  insertClientSchema,
+  insertServiceSchema,
+  insertBarberSchema,
+  insertAdminUserSchema,
+  insertReviewSchema,
+  insertDiscountCodeSchema,
+  insertReminderTemplateSchema,
+  insertStaffBreakSchema,
+  type Booking
+} from "../../shared/schema";
 import connectPgSimple from "connect-pg-simple";
 import Stripe from "stripe";
+import { smsService } from "../services/sms";
+import { reminderScheduler } from "../services/reminderScheduler";
 
 // Initialize Stripe only if API key is provided
 let stripe: Stripe | null = null;
@@ -413,25 +426,69 @@ export async function registerRoutes(app: Express) {
   // Availability - Get available time slots for a barber on a specific date
   app.get("/api/availability", async (req, res) => {
     try {
-      const { barberId, date } = req.query;
+      const { barberId, date, serviceId } = req.query;
 
       if (!barberId || !date) {
         return res.status(400).json({ error: "barberId and date are required" });
       }
 
-      // All possible time slots
-      const allSlots = [
-        "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-        "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-        "15:00", "15:30", "16:00", "16:30", "17:00", "17:30"
-      ];
+      const barberIdNum = parseInt(barberId as string);
+      const dateStr = date as string;
+
+      // Get service duration if provided
+      let serviceDuration = 30; // default 30 minutes
+      if (serviceId) {
+        const service = await storage.getService(parseInt(serviceId as string));
+        if (service) {
+          serviceDuration = service.duration;
+        }
+      }
+
+      // Business hours (can be made configurable)
+      const businessStart = "09:00";
+      const businessEnd = "18:00";
+
+      // Generate all possible time slots based on service duration
+      const allSlots = generateTimeSlots(businessStart, businessEnd, 30); // 30-min intervals
 
       // Get existing bookings for the date and barber
-      const bookings = await storage.getBookingsByBarberAndDate(parseInt(barberId as string), date as string);
-      const bookedSlots = bookings.map(booking => booking.time);
+      const bookings = await storage.getBookingsByBarberAndDate(barberIdNum, dateStr);
 
-      // Filter out booked slots
-      const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
+      // Get staff breaks for the date and barber
+      const breaks = await storage.getStaffBreaksByBarber(barberIdNum, dateStr);
+
+      // Calculate blocked time slots
+      const blockedSlots = new Set<string>();
+
+      // Block slots for existing bookings (including service duration)
+      for (const booking of bookings) {
+        const service = await storage.getService(booking.serviceId);
+        const duration = service?.duration || 30;
+
+        // Block all slots covered by this booking
+        const bookingSlots = getSlotsForDuration(booking.time, duration, 30);
+        bookingSlots.forEach(slot => blockedSlots.add(slot));
+      }
+
+      // Block slots for staff breaks
+      for (const breakTime of breaks) {
+        const breakStart = breakTime.startTime;
+        const breakEnd = breakTime.endTime;
+        const breakSlots = getSlotsBetween(breakStart, breakEnd, 30);
+        breakSlots.forEach(slot => blockedSlots.add(slot));
+      }
+
+      // Filter available slots
+      const availableSlots = allSlots.filter(slot => {
+        // Check if slot is blocked
+        if (blockedSlots.has(slot)) return false;
+
+        // Check if there's enough time for the service before closing/break
+        const requiredSlots = getSlotsForDuration(slot, serviceDuration, 30);
+
+        // All required slots must not be blocked
+        return requiredSlots.every(reqSlot => !blockedSlots.has(reqSlot));
+      });
 
       res.json(availableSlots);
     } catch (error) {
@@ -439,6 +496,62 @@ export async function registerRoutes(app: Express) {
       res.status(500).json({ error: "Failed to fetch availability" });
     }
   });
+
+  // Helper function to generate time slots
+  function generateTimeSlots(start: string, end: string, intervalMinutes: number): string[] {
+    const slots: string[] = [];
+    const [startHour, startMin] = start.split(':').map(Number);
+    const [endHour, endMin] = end.split(':').map(Number);
+
+    let currentMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+
+    while (currentMinutes < endMinutes) {
+      const hours = Math.floor(currentMinutes / 60);
+      const minutes = currentMinutes % 60;
+      slots.push(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+      currentMinutes += intervalMinutes;
+    }
+
+    return slots;
+  }
+
+  // Helper function to get all slots needed for a duration starting at a specific time
+  function getSlotsForDuration(startTime: string, durationMinutes: number, slotInterval: number): string[] {
+    const slots: string[] = [];
+    const [startHour, startMin] = startTime.split(':').map(Number);
+
+    let currentMinutes = startHour * 60 + startMin;
+    const endMinutes = currentMinutes + durationMinutes;
+
+    while (currentMinutes < endMinutes) {
+      const hours = Math.floor(currentMinutes / 60);
+      const minutes = currentMinutes % 60;
+      slots.push(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+      currentMinutes += slotInterval;
+    }
+
+    return slots;
+  }
+
+  // Helper function to get all slots between two times
+  function getSlotsBetween(startTime: string, endTime: string, slotInterval: number): string[] {
+    const slots: string[] = [];
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+
+    let currentMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+
+    while (currentMinutes < endMinutes) {
+      const hours = Math.floor(currentMinutes / 60);
+      const minutes = currentMinutes % 60;
+      slots.push(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+      currentMinutes += slotInterval;
+    }
+
+    return slots;
+  }
 
   // Clients
   app.get("/api/clients", async (_req, res) => {
@@ -586,8 +699,8 @@ export async function registerRoutes(app: Express) {
 
       // Test if token is still valid
       googleAuthService.setCredentials(
-        token.accessToken, 
-        token.refreshToken, 
+        token.accessToken,
+        token.refreshToken,
         token.expiryDate.getTime()
       );
 
@@ -602,12 +715,578 @@ export async function registerRoutes(app: Express) {
 
     } catch (error) {
       console.error("[OAuth] Test error:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Failed to test token",
         details: error instanceof Error ? error.message : "Unknown error"
       });
     }
   });
+
+  // =====================================================
+  // CUSTOMER AUTHENTICATION ENDPOINTS
+  // =====================================================
+
+  // Customer registration
+  app.post("/api/customer/register", async (req, res) => {
+    try {
+      const { name, email, phone, password } = req.body;
+
+      // Check if customer already exists
+      const existingByEmail = email ? await storage.getClientByEmail(email) : null;
+      const existingByPhone = await storage.getClientByPhone(phone);
+
+      if (existingByEmail || existingByPhone) {
+        return res.status(400).json({ error: "Customer already exists with this email or phone" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create customer
+      const customer = await storage.createClient({
+        name,
+        email,
+        phone,
+        password: hashedPassword,
+        emailVerified: false
+      });
+
+      // Set session
+      if (req.session) {
+        (req.session as any).customerId = customer.id;
+        (req.session as any).customerName = customer.name;
+      }
+
+      res.json({
+        success: true,
+        customer: {
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone
+        }
+      });
+    } catch (error) {
+      console.error("Customer registration error:", error);
+      res.status(500).json({ error: "Failed to register customer" });
+    }
+  });
+
+  // Customer login
+  app.post("/api/customer/login", async (req, res) => {
+    try {
+      const { identifier, password } = req.body; // identifier can be email or phone
+
+      // Find customer by email or phone
+      let customer = await storage.getClientByEmail(identifier);
+      if (!customer) {
+        customer = await storage.getClientByPhone(identifier);
+      }
+
+      if (!customer || !customer.password) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Verify password
+      const isValid = await bcrypt.compare(password, customer.password);
+      if (!isValid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Set session
+      if (req.session) {
+        (req.session as any).customerId = customer.id;
+        (req.session as any).customerName = customer.name;
+      }
+
+      res.json({
+        success: true,
+        customer: {
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          loyaltyPoints: customer.loyaltyPoints,
+          totalVisits: customer.totalVisits
+        }
+      });
+    } catch (error) {
+      console.error("Customer login error:", error);
+      res.status(500).json({ error: "Failed to login" });
+    }
+  });
+
+  // Customer logout
+  app.post("/api/customer/logout", async (req, res) => {
+    if (req.session) {
+      delete (req.session as any).customerId;
+      delete (req.session as any).customerName;
+    }
+    res.json({ success: true });
+  });
+
+  // Get current customer
+  app.get("/api/customer/me", async (req, res) => {
+    try {
+      const customerId = (req.session as any)?.customerId;
+      if (!customerId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const customer = await storage.getClient(customerId);
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+
+      // Get customer's bookings
+      const bookings = await storage.getBookingsByClient(customerId);
+
+      res.json({
+        customer: {
+          id: customer.id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          loyaltyPoints: customer.loyaltyPoints,
+          totalVisits: customer.totalVisits,
+          totalSpent: customer.totalSpent,
+          birthday: customer.birthday,
+          anniversary: customer.anniversary,
+          preferences: customer.preferences,
+          profilePhoto: customer.profilePhoto
+        },
+        bookings
+      });
+    } catch (error) {
+      console.error("Get customer error:", error);
+      res.status(500).json({ error: "Failed to get customer data" });
+    }
+  });
+
+  // Update customer profile
+  app.patch("/api/customer/profile", async (req, res) => {
+    try {
+      const customerId = (req.session as any)?.customerId;
+      if (!customerId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const updates = req.body;
+      // Don't allow updating password through this endpoint
+      delete updates.password;
+
+      const customer = await storage.updateClient(customerId, updates);
+      res.json({ success: true, customer });
+    } catch (error) {
+      console.error("Update customer error:", error);
+      res.status(500).json({ error: "Failed to update profile" });
+    }
+  });
+
+  // =====================================================
+  // REVIEW ENDPOINTS
+  // =====================================================
+
+  // Get all reviews (optionally filtered by barber)
+  app.get("/api/reviews", async (req, res) => {
+    try {
+      const { barberId } = req.query;
+
+      let reviews;
+      if (barberId) {
+        reviews = await storage.getReviewsByBarber(parseInt(barberId as string));
+      } else {
+        reviews = await storage.getReviews();
+      }
+
+      // Filter to only published reviews for public access
+      const publishedReviews = reviews.filter(r => r.isPublished);
+
+      res.json(publishedReviews);
+    } catch (error) {
+      console.error("Get reviews error:", error);
+      res.status(500).json({ error: "Failed to get reviews" });
+    }
+  });
+
+  // Get reviews by customer (requires auth)
+  app.get("/api/customer/reviews", async (req, res) => {
+    try {
+      const customerId = (req.session as any)?.customerId;
+      if (!customerId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const reviews = await storage.getReviewsByClient(customerId);
+      res.json(reviews);
+    } catch (error) {
+      console.error("Get customer reviews error:", error);
+      res.status(500).json({ error: "Failed to get reviews" });
+    }
+  });
+
+  // Create a review
+  app.post("/api/reviews", async (req, res) => {
+    try {
+      const customerId = (req.session as any)?.customerId;
+      if (!customerId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      const reviewData = insertReviewSchema.parse({
+        ...req.body,
+        clientId: customerId
+      });
+
+      const review = await storage.createReview(reviewData);
+
+      // Update barber's average rating (this is a simple implementation)
+      // In production, you'd want to calculate this more efficiently
+      const barberReviews = await storage.getReviewsByBarber(review.barberId);
+      const avgRating = barberReviews.reduce((sum, r) => sum + r.rating, 0) / barberReviews.length;
+
+      res.json({ success: true, review, avgRating });
+    } catch (error) {
+      console.error("Create review error:", error);
+      res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+
+  // Update a review (customer can only update their own)
+  app.patch("/api/reviews/:id", async (req, res) => {
+    try {
+      const customerId = (req.session as any)?.customerId;
+      const reviewId = parseInt(req.params.id);
+
+      // Check if review exists and belongs to customer
+      const existingReview = await storage.getReview(reviewId);
+      if (!existingReview) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+
+      if (existingReview.clientId !== customerId) {
+        return res.status(403).json({ error: "Not authorized to update this review" });
+      }
+
+      const updates = req.body;
+      const review = await storage.updateReview(reviewId, updates);
+
+      res.json({ success: true, review });
+    } catch (error) {
+      console.error("Update review error:", error);
+      res.status(500).json({ error: "Failed to update review" });
+    }
+  });
+
+  // Delete a review (admin only or customer's own)
+  app.delete("/api/reviews/:id", async (req, res) => {
+    try {
+      const customerId = (req.session as any)?.customerId;
+      const adminId = (req.session as any)?.userId;
+      const reviewId = parseInt(req.params.id);
+
+      const existingReview = await storage.getReview(reviewId);
+      if (!existingReview) {
+        return res.status(404).json({ error: "Review not found" });
+      }
+
+      // Allow if admin or review owner
+      if (!adminId && existingReview.clientId !== customerId) {
+        return res.status(403).json({ error: "Not authorized to delete this review" });
+      }
+
+      await storage.deleteReview(reviewId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete review error:", error);
+      res.status(500).json({ error: "Failed to delete review" });
+    }
+  });
+
+  // =====================================================
+  // DISCOUNT CODE ENDPOINTS
+  // =====================================================
+
+  // Validate a discount code
+  app.post("/api/discounts/validate", async (req, res) => {
+    try {
+      const { code, serviceId, clientId } = req.body;
+
+      const discount = await storage.getDiscountCodeByCode(code.toUpperCase());
+      if (!discount) {
+        return res.status(404).json({ error: "Invalid discount code" });
+      }
+
+      // Check if active
+      if (!discount.isActive) {
+        return res.status(400).json({ error: "This discount code is not active" });
+      }
+
+      // Check validity dates
+      const now = new Date();
+      if (discount.validFrom && new Date(discount.validFrom) > now) {
+        return res.status(400).json({ error: "This discount code is not yet valid" });
+      }
+      if (discount.validUntil && new Date(discount.validUntil) < now) {
+        return res.status(400).json({ error: "This discount code has expired" });
+      }
+
+      // Check usage limit
+      if (discount.usageLimit && discount.usageCount >= discount.usageLimit) {
+        return res.status(400).json({ error: "This discount code has reached its usage limit" });
+      }
+
+      // Check per-client usage limit
+      if (clientId && discount.perClientLimit) {
+        const clientUsage = await storage.getDiscountUsageByClient(clientId, discount.id);
+        if (clientUsage.length >= discount.perClientLimit) {
+          return res.status(400).json({ error: "You have already used this discount code" });
+        }
+      }
+
+      // Check if first-time only
+      if (discount.firstTimeOnly && clientId) {
+        const client = await storage.getClient(clientId);
+        if (client && client.totalVisits > 0) {
+          return res.status(400).json({ error: "This discount is only for first-time customers" });
+        }
+      }
+
+      // Check if applicable to service
+      if (discount.applicableServices && discount.applicableServices.length > 0) {
+        if (!serviceId || !discount.applicableServices.includes(serviceId.toString())) {
+          return res.status(400).json({ error: "This discount does not apply to the selected service" });
+        }
+      }
+
+      res.json({
+        valid: true,
+        discount: {
+          id: discount.id,
+          code: discount.code,
+          type: discount.type,
+          value: discount.value,
+          description: discount.description,
+          minPurchase: discount.minPurchase,
+          maxDiscount: discount.maxDiscount
+        }
+      });
+    } catch (error) {
+      console.error("Validate discount error:", error);
+      res.status(500).json({ error: "Failed to validate discount code" });
+    }
+  });
+
+  // Get all discount codes (admin only)
+  app.get("/api/discounts", requireAuth, async (req, res) => {
+    try {
+      const discounts = await storage.getDiscountCodes();
+      res.json(discounts);
+    } catch (error) {
+      console.error("Get discounts error:", error);
+      res.status(500).json({ error: "Failed to get discount codes" });
+    }
+  });
+
+  // Create discount code (admin only)
+  app.post("/api/discounts", requireAuth, async (req, res) => {
+    try {
+      const adminId = (req.session as any)?.userId;
+      const discountData = insertDiscountCodeSchema.parse({
+        ...req.body,
+        code: req.body.code.toUpperCase(),
+        createdBy: adminId
+      });
+
+      const discount = await storage.createDiscountCode(discountData);
+      res.json({ success: true, discount });
+    } catch (error) {
+      console.error("Create discount error:", error);
+      res.status(500).json({ error: "Failed to create discount code" });
+    }
+  });
+
+  // Update discount code (admin only)
+  app.patch("/api/discounts/:id", requireAuth, async (req, res) => {
+    try {
+      const discountId = parseInt(req.params.id);
+      const updates = req.body;
+
+      if (updates.code) {
+        updates.code = updates.code.toUpperCase();
+      }
+
+      const discount = await storage.updateDiscountCode(discountId, updates);
+      res.json({ success: true, discount });
+    } catch (error) {
+      console.error("Update discount error:", error);
+      res.status(500).json({ error: "Failed to update discount code" });
+    }
+  });
+
+  // Delete discount code (admin only)
+  app.delete("/api/discounts/:id", requireAuth, async (req, res) => {
+    try {
+      const discountId = parseInt(req.params.id);
+      await storage.deleteDiscountCode(discountId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete discount error:", error);
+      res.status(500).json({ error: "Failed to delete discount code" });
+    }
+  });
+
+  // =====================================================
+  // REMINDER TEMPLATE ENDPOINTS
+  // =====================================================
+
+  // Get all reminder templates (admin only)
+  app.get("/api/reminder-templates", requireAuth, async (req, res) => {
+    try {
+      const templates = await storage.getReminderTemplates();
+      res.json(templates);
+    } catch (error) {
+      console.error("Get reminder templates error:", error);
+      res.status(500).json({ error: "Failed to get reminder templates" });
+    }
+  });
+
+  // Create reminder template (admin only)
+  app.post("/api/reminder-templates", requireAuth, async (req, res) => {
+    try {
+      const templateData = insertReminderTemplateSchema.parse(req.body);
+      const template = await storage.createReminderTemplate(templateData);
+      res.json({ success: true, template });
+    } catch (error) {
+      console.error("Create reminder template error:", error);
+      res.status(500).json({ error: "Failed to create reminder template" });
+    }
+  });
+
+  // Update reminder template (admin only)
+  app.patch("/api/reminder-templates/:id", requireAuth, async (req, res) => {
+    try {
+      const templateId = parseInt(req.params.id);
+      const updates = req.body;
+      const template = await storage.updateReminderTemplate(templateId, updates);
+      res.json({ success: true, template });
+    } catch (error) {
+      console.error("Update reminder template error:", error);
+      res.status(500).json({ error: "Failed to update reminder template" });
+    }
+  });
+
+  // Delete reminder template (admin only)
+  app.delete("/api/reminder-templates/:id", requireAuth, async (req, res) => {
+    try {
+      const templateId = parseInt(req.params.id);
+      await storage.deleteReminderTemplate(templateId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete reminder template error:", error);
+      res.status(500).json({ error: "Failed to delete reminder template" });
+    }
+  });
+
+  // Get reminder logs (admin only)
+  app.get("/api/reminder-logs", requireAuth, async (req, res) => {
+    try {
+      const logs = await storage.getReminderLogs();
+      res.json(logs);
+    } catch (error) {
+      console.error("Get reminder logs error:", error);
+      res.status(500).json({ error: "Failed to get reminder logs" });
+    }
+  });
+
+  // Trigger reminder check manually (admin only)
+  app.post("/api/reminders/trigger", requireAuth, async (req, res) => {
+    try {
+      await reminderScheduler.triggerCheck();
+      res.json({ success: true, message: "Reminder check triggered" });
+    } catch (error) {
+      console.error("Trigger reminders error:", error);
+      res.status(500).json({ error: "Failed to trigger reminder check" });
+    }
+  });
+
+  // Get reminder scheduler status (admin only)
+  app.get("/api/reminders/status", requireAuth, async (req, res) => {
+    try {
+      const status = reminderScheduler.getStatus();
+      const smsReady = smsService.isReady();
+      res.json({ ...status, smsReady });
+    } catch (error) {
+      console.error("Get reminder status error:", error);
+      res.status(500).json({ error: "Failed to get reminder status" });
+    }
+  });
+
+  // =====================================================
+  // STAFF BREAK ENDPOINTS
+  // =====================================================
+
+  // Get staff breaks
+  app.get("/api/staff-breaks", async (req, res) => {
+    try {
+      const { barberId, date } = req.query;
+
+      let breaks;
+      if (barberId) {
+        breaks = await storage.getStaffBreaksByBarber(
+          parseInt(barberId as string),
+          date as string | undefined
+        );
+      } else {
+        breaks = await storage.getStaffBreaks();
+      }
+
+      res.json(breaks);
+    } catch (error) {
+      console.error("Get staff breaks error:", error);
+      res.status(500).json({ error: "Failed to get staff breaks" });
+    }
+  });
+
+  // Create staff break (admin only)
+  app.post("/api/staff-breaks", requireAuth, async (req, res) => {
+    try {
+      const breakData = insertStaffBreakSchema.parse(req.body);
+      const staffBreak = await storage.createStaffBreak(breakData);
+      res.json({ success: true, staffBreak });
+    } catch (error) {
+      console.error("Create staff break error:", error);
+      res.status(500).json({ error: "Failed to create staff break" });
+    }
+  });
+
+  // Update staff break (admin only)
+  app.patch("/api/staff-breaks/:id", requireAuth, async (req, res) => {
+    try {
+      const breakId = parseInt(req.params.id);
+      const updates = req.body;
+      const staffBreak = await storage.updateStaffBreak(breakId, updates);
+      res.json({ success: true, staffBreak });
+    } catch (error) {
+      console.error("Update staff break error:", error);
+      res.status(500).json({ error: "Failed to update staff break" });
+    }
+  });
+
+  // Delete staff break (admin only)
+  app.delete("/api/staff-breaks/:id", requireAuth, async (req, res) => {
+    try {
+      const breakId = parseInt(req.params.id);
+      await storage.deleteStaffBreak(breakId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete staff break error:", error);
+      res.status(500).json({ error: "Failed to delete staff break" });
+    }
+  });
+
+  // Start the reminder scheduler
+  reminderScheduler.start();
 
   return server;
 }

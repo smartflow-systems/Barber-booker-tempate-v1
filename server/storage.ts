@@ -1,22 +1,40 @@
-import { 
-  barbers, 
-  services, 
+import {
+  barbers,
+  services,
   clients,
   bookings,
   googleTokens,
   adminUsers,
-  type Barber, 
-  type Service, 
+  reviews,
+  discountCodes,
+  discountUsage,
+  reminderTemplates,
+  reminderLogs,
+  staffBreaks,
+  type Barber,
+  type Service,
   type Client,
   type Booking,
   type GoogleToken,
   type AdminUser,
-  type InsertBarber, 
-  type InsertService, 
+  type Review,
+  type DiscountCode,
+  type DiscountUsage,
+  type ReminderTemplate,
+  type ReminderLog,
+  type StaffBreak,
+  type InsertBarber,
+  type InsertService,
   type InsertClient,
   type InsertBooking,
   type InsertGoogleToken,
-  type InsertAdminUser
+  type InsertAdminUser,
+  type InsertReview,
+  type InsertDiscountCode,
+  type InsertDiscountUsage,
+  type InsertReminderTemplate,
+  type InsertReminderLog,
+  type InsertStaffBreak
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
@@ -36,6 +54,7 @@ export interface IStorage {
   getClients(): Promise<Client[]>;
   getClient(id: number): Promise<Client | undefined>;
   getClientByPhone(phone: string): Promise<Client | undefined>;
+  getClientByEmail(email: string): Promise<Client | undefined>;
   createClient(client: InsertClient): Promise<Client>;
   updateClient(id: number, updates: Partial<InsertClient>): Promise<Client | undefined>;
 
@@ -61,6 +80,48 @@ export interface IStorage {
   getBookingsByDate(date: string): Promise<Booking[]>;
   getBookingsByBarberAndDate(barberId: number, date: string): Promise<Booking[]>;
   getBookingsByClient(clientId: number): Promise<Booking[]>;
+
+  // Reviews
+  getReviews(): Promise<Review[]>;
+  getReview(id: number): Promise<Review | undefined>;
+  getReviewsByBarber(barberId: number): Promise<Review[]>;
+  getReviewsByClient(clientId: number): Promise<Review[]>;
+  createReview(review: InsertReview): Promise<Review>;
+  updateReview(id: number, updates: Partial<InsertReview>): Promise<Review | undefined>;
+  deleteReview(id: number): Promise<boolean>;
+
+  // Discount Codes
+  getDiscountCodes(): Promise<DiscountCode[]>;
+  getDiscountCode(id: number): Promise<DiscountCode | undefined>;
+  getDiscountCodeByCode(code: string): Promise<DiscountCode | undefined>;
+  createDiscountCode(discount: InsertDiscountCode): Promise<DiscountCode>;
+  updateDiscountCode(id: number, updates: Partial<InsertDiscountCode>): Promise<DiscountCode | undefined>;
+  deleteDiscountCode(id: number): Promise<boolean>;
+
+  // Discount Usage
+  getDiscountUsage(discountCodeId: number): Promise<DiscountUsage[]>;
+  getDiscountUsageByClient(clientId: number, discountCodeId: number): Promise<DiscountUsage[]>;
+  createDiscountUsage(usage: InsertDiscountUsage): Promise<DiscountUsage>;
+
+  // Reminder Templates
+  getReminderTemplates(): Promise<ReminderTemplate[]>;
+  getReminderTemplate(id: number): Promise<ReminderTemplate | undefined>;
+  createReminderTemplate(template: InsertReminderTemplate): Promise<ReminderTemplate>;
+  updateReminderTemplate(id: number, updates: Partial<InsertReminderTemplate>): Promise<ReminderTemplate | undefined>;
+  deleteReminderTemplate(id: number): Promise<boolean>;
+
+  // Reminder Logs
+  getReminderLogs(): Promise<ReminderLog[]>;
+  getReminderLogsByBooking(bookingId: number): Promise<ReminderLog[]>;
+  createReminderLog(log: InsertReminderLog): Promise<ReminderLog>;
+  updateReminderLog(id: number, updates: Partial<InsertReminderLog>): Promise<ReminderLog | undefined>;
+
+  // Staff Breaks
+  getStaffBreaks(): Promise<StaffBreak[]>;
+  getStaffBreaksByBarber(barberId: number, date?: string): Promise<StaffBreak[]>;
+  createStaffBreak(staffBreak: InsertStaffBreak): Promise<StaffBreak>;
+  updateStaffBreak(id: number, updates: Partial<InsertStaffBreak>): Promise<StaffBreak | undefined>;
+  deleteStaffBreak(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -368,6 +429,53 @@ export class MemStorage implements IStorage {
     this.bookings.set(id, updatedBooking);
     return updatedBooking;
   }
+
+  // Review methods (not implemented for MemStorage)
+  async getReviews(): Promise<Review[]> { return []; }
+  async getReview(id: number): Promise<Review | undefined> { return undefined; }
+  async getReviewsByBarber(barberId: number): Promise<Review[]> { return []; }
+  async getReviewsByClient(clientId: number): Promise<Review[]> { return []; }
+  async createReview(review: InsertReview): Promise<Review> { throw new Error("Reviews not supported in memory storage"); }
+  async updateReview(id: number, updates: Partial<InsertReview>): Promise<Review | undefined> { return undefined; }
+  async deleteReview(id: number): Promise<boolean> { return false; }
+
+  // Discount Code methods (not implemented for MemStorage)
+  async getDiscountCodes(): Promise<DiscountCode[]> { return []; }
+  async getDiscountCode(id: number): Promise<DiscountCode | undefined> { return undefined; }
+  async getDiscountCodeByCode(code: string): Promise<DiscountCode | undefined> { return undefined; }
+  async createDiscountCode(discount: InsertDiscountCode): Promise<DiscountCode> { throw new Error("Discount codes not supported in memory storage"); }
+  async updateDiscountCode(id: number, updates: Partial<InsertDiscountCode>): Promise<DiscountCode | undefined> { return undefined; }
+  async deleteDiscountCode(id: number): Promise<boolean> { return false; }
+
+  // Discount Usage methods (not implemented for MemStorage)
+  async getDiscountUsage(discountCodeId: number): Promise<DiscountUsage[]> { return []; }
+  async getDiscountUsageByClient(clientId: number, discountCodeId: number): Promise<DiscountUsage[]> { return []; }
+  async createDiscountUsage(usage: InsertDiscountUsage): Promise<DiscountUsage> { throw new Error("Discount usage not supported in memory storage"); }
+
+  // Reminder Template methods (not implemented for MemStorage)
+  async getReminderTemplates(): Promise<ReminderTemplate[]> { return []; }
+  async getReminderTemplate(id: number): Promise<ReminderTemplate | undefined> { return undefined; }
+  async createReminderTemplate(template: InsertReminderTemplate): Promise<ReminderTemplate> { throw new Error("Reminder templates not supported in memory storage"); }
+  async updateReminderTemplate(id: number, updates: Partial<InsertReminderTemplate>): Promise<ReminderTemplate | undefined> { return undefined; }
+  async deleteReminderTemplate(id: number): Promise<boolean> { return false; }
+
+  // Reminder Log methods (not implemented for MemStorage)
+  async getReminderLogs(): Promise<ReminderLog[]> { return []; }
+  async getReminderLogsByBooking(bookingId: number): Promise<ReminderLog[]> { return []; }
+  async createReminderLog(log: InsertReminderLog): Promise<ReminderLog> { throw new Error("Reminder logs not supported in memory storage"); }
+  async updateReminderLog(id: number, updates: Partial<InsertReminderLog>): Promise<ReminderLog | undefined> { return undefined; }
+
+  // Staff Break methods (not implemented for MemStorage)
+  async getStaffBreaks(): Promise<StaffBreak[]> { return []; }
+  async getStaffBreaksByBarber(barberId: number, date?: string): Promise<StaffBreak[]> { return []; }
+  async createStaffBreak(staffBreak: InsertStaffBreak): Promise<StaffBreak> { throw new Error("Staff breaks not supported in memory storage"); }
+  async updateStaffBreak(id: number, updates: Partial<InsertStaffBreak>): Promise<StaffBreak | undefined> { return undefined; }
+  async deleteStaffBreak(id: number): Promise<boolean> { return false; }
+
+  // Client by email (not implemented for MemStorage)
+  async getClientByEmail(email: string): Promise<Client | undefined> {
+    return Array.from(this.clients.values()).find(client => client.email === email);
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -649,6 +757,204 @@ export class DatabaseStorage implements IStorage {
       .where(eq(adminUsers.id, id))
       .returning();
     return user || undefined;
+  }
+
+  // Review methods
+  async getReviews(): Promise<Review[]> {
+    return await db.select().from(reviews);
+  }
+
+  async getReview(id: number): Promise<Review | undefined> {
+    const [review] = await db.select().from(reviews).where(eq(reviews.id, id));
+    return review || undefined;
+  }
+
+  async getReviewsByBarber(barberId: number): Promise<Review[]> {
+    return await db.select().from(reviews).where(eq(reviews.barberId, barberId));
+  }
+
+  async getReviewsByClient(clientId: number): Promise<Review[]> {
+    return await db.select().from(reviews).where(eq(reviews.clientId, clientId));
+  }
+
+  async createReview(insertReview: InsertReview): Promise<Review> {
+    const [review] = await db
+      .insert(reviews)
+      .values(insertReview)
+      .returning();
+    return review;
+  }
+
+  async updateReview(id: number, updates: Partial<InsertReview>): Promise<Review | undefined> {
+    const [review] = await db
+      .update(reviews)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(reviews.id, id))
+      .returning();
+    return review || undefined;
+  }
+
+  async deleteReview(id: number): Promise<boolean> {
+    const result = await db.delete(reviews).where(eq(reviews.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Discount Code methods
+  async getDiscountCodes(): Promise<DiscountCode[]> {
+    return await db.select().from(discountCodes);
+  }
+
+  async getDiscountCode(id: number): Promise<DiscountCode | undefined> {
+    const [discount] = await db.select().from(discountCodes).where(eq(discountCodes.id, id));
+    return discount || undefined;
+  }
+
+  async getDiscountCodeByCode(code: string): Promise<DiscountCode | undefined> {
+    const [discount] = await db.select().from(discountCodes).where(eq(discountCodes.code, code));
+    return discount || undefined;
+  }
+
+  async createDiscountCode(insertDiscount: InsertDiscountCode): Promise<DiscountCode> {
+    const [discount] = await db
+      .insert(discountCodes)
+      .values(insertDiscount)
+      .returning();
+    return discount;
+  }
+
+  async updateDiscountCode(id: number, updates: Partial<InsertDiscountCode>): Promise<DiscountCode | undefined> {
+    const [discount] = await db
+      .update(discountCodes)
+      .set(updates)
+      .where(eq(discountCodes.id, id))
+      .returning();
+    return discount || undefined;
+  }
+
+  async deleteDiscountCode(id: number): Promise<boolean> {
+    const result = await db.delete(discountCodes).where(eq(discountCodes.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Discount Usage methods
+  async getDiscountUsage(discountCodeId: number): Promise<DiscountUsage[]> {
+    return await db.select().from(discountUsage).where(eq(discountUsage.discountCodeId, discountCodeId));
+  }
+
+  async getDiscountUsageByClient(clientId: number, discountCodeId: number): Promise<DiscountUsage[]> {
+    return await db
+      .select()
+      .from(discountUsage)
+      .where(and(eq(discountUsage.clientId, clientId), eq(discountUsage.discountCodeId, discountCodeId)));
+  }
+
+  async createDiscountUsage(insertUsage: InsertDiscountUsage): Promise<DiscountUsage> {
+    const [usage] = await db
+      .insert(discountUsage)
+      .values(insertUsage)
+      .returning();
+    return usage;
+  }
+
+  // Reminder Template methods
+  async getReminderTemplates(): Promise<ReminderTemplate[]> {
+    return await db.select().from(reminderTemplates);
+  }
+
+  async getReminderTemplate(id: number): Promise<ReminderTemplate | undefined> {
+    const [template] = await db.select().from(reminderTemplates).where(eq(reminderTemplates.id, id));
+    return template || undefined;
+  }
+
+  async createReminderTemplate(insertTemplate: InsertReminderTemplate): Promise<ReminderTemplate> {
+    const [template] = await db
+      .insert(reminderTemplates)
+      .values(insertTemplate)
+      .returning();
+    return template;
+  }
+
+  async updateReminderTemplate(id: number, updates: Partial<InsertReminderTemplate>): Promise<ReminderTemplate | undefined> {
+    const [template] = await db
+      .update(reminderTemplates)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(reminderTemplates.id, id))
+      .returning();
+    return template || undefined;
+  }
+
+  async deleteReminderTemplate(id: number): Promise<boolean> {
+    const result = await db.delete(reminderTemplates).where(eq(reminderTemplates.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Reminder Log methods
+  async getReminderLogs(): Promise<ReminderLog[]> {
+    return await db.select().from(reminderLogs);
+  }
+
+  async getReminderLogsByBooking(bookingId: number): Promise<ReminderLog[]> {
+    return await db.select().from(reminderLogs).where(eq(reminderLogs.bookingId, bookingId));
+  }
+
+  async createReminderLog(insertLog: InsertReminderLog): Promise<ReminderLog> {
+    const [log] = await db
+      .insert(reminderLogs)
+      .values(insertLog)
+      .returning();
+    return log;
+  }
+
+  async updateReminderLog(id: number, updates: Partial<InsertReminderLog>): Promise<ReminderLog | undefined> {
+    const [log] = await db
+      .update(reminderLogs)
+      .set(updates)
+      .where(eq(reminderLogs.id, id))
+      .returning();
+    return log || undefined;
+  }
+
+  // Staff Break methods
+  async getStaffBreaks(): Promise<StaffBreak[]> {
+    return await db.select().from(staffBreaks);
+  }
+
+  async getStaffBreaksByBarber(barberId: number, date?: string): Promise<StaffBreak[]> {
+    if (date) {
+      return await db
+        .select()
+        .from(staffBreaks)
+        .where(and(eq(staffBreaks.barberId, barberId), eq(staffBreaks.date, date)));
+    }
+    return await db.select().from(staffBreaks).where(eq(staffBreaks.barberId, barberId));
+  }
+
+  async createStaffBreak(insertBreak: InsertStaffBreak): Promise<StaffBreak> {
+    const [staffBreak] = await db
+      .insert(staffBreaks)
+      .values(insertBreak)
+      .returning();
+    return staffBreak;
+  }
+
+  async updateStaffBreak(id: number, updates: Partial<InsertStaffBreak>): Promise<StaffBreak | undefined> {
+    const [staffBreak] = await db
+      .update(staffBreaks)
+      .set(updates)
+      .where(eq(staffBreaks.id, id))
+      .returning();
+    return staffBreak || undefined;
+  }
+
+  async deleteStaffBreak(id: number): Promise<boolean> {
+    const result = await db.delete(staffBreaks).where(eq(staffBreaks.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  // Client by email
+  async getClientByEmail(email: string): Promise<Client | undefined> {
+    const [client] = await db.select().from(clients).where(eq(clients.email, email));
+    return client || undefined;
   }
 }
 
