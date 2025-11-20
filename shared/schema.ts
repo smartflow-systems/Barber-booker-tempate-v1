@@ -317,6 +317,287 @@ export const staffBreaks = pgTable("staff_breaks", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ==================================================
+// POWERHOUSE FEATURES - Revenue & Growth
+// ==================================================
+
+// Gift Cards
+export const giftCards = pgTable("gift_cards", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  initialAmount: integer("initial_amount").notNull(), // in cents
+  currentBalance: integer("current_balance").notNull(), // in cents
+  purchasedBy: integer("purchased_by").references(() => clients.id),
+  purchaserEmail: text("purchaser_email"),
+  recipientName: text("recipient_name"),
+  recipientEmail: text("recipient_email"),
+  message: text("message"),
+  status: text("status").notNull().default("active"), // "active", "redeemed", "expired", "cancelled"
+  expiresAt: timestamp("expires_at"),
+  purchasedAt: timestamp("purchased_at").defaultNow(),
+  redeemedAt: timestamp("redeemed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Gift Card Transactions
+export const giftCardTransactions = pgTable("gift_card_transactions", {
+  id: serial("id").primaryKey(),
+  giftCardId: integer("gift_card_id").references(() => giftCards.id, { onDelete: "cascade" }).notNull(),
+  bookingId: integer("booking_id").references(() => bookings.id),
+  amount: integer("amount").notNull(), // in cents (negative for usage)
+  balanceBefore: integer("balance_before").notNull(),
+  balanceAfter: integer("balance_after").notNull(),
+  type: text("type").notNull(), // "purchase", "reload", "redemption", "refund"
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Referral Program
+export const referrals = pgTable("referrals", {
+  id: serial("id").primaryKey(),
+  referrerId: integer("referrer_id").references(() => clients.id, { onDelete: "cascade" }).notNull(),
+  referredId: integer("referred_id").references(() => clients.id, { onDelete: "cascade" }),
+  referredEmail: text("referred_email"),
+  referredPhone: text("referred_phone"),
+  referralCode: text("referral_code").notNull(),
+  status: text("status").notNull().default("pending"), // "pending", "completed", "rewarded"
+  referrerReward: integer("referrer_reward").default(0), // in cents or points
+  referredReward: integer("referred_reward").default(0), // in cents or points
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Memberships/Subscriptions
+export const membershipTiers = pgTable("membership_tiers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  price: integer("price").notNull(), // in cents per month
+  billingCycle: text("billing_cycle").notNull().default("monthly"), // "monthly", "quarterly", "yearly"
+  benefits: jsonb("benefits"), // { cuts: number, discounts: number, priority: boolean, etc. }
+  maxCutsPerMonth: integer("max_cuts_per_month"),
+  discountPercentage: integer("discount_percentage").default(0),
+  priorityBooking: boolean("priority_booking").default(false),
+  freeProducts: jsonb("free_products"), // array of product IDs
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Client Memberships
+export const clientMemberships = pgTable("client_memberships", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }).notNull(),
+  tierId: integer("tier_id").references(() => membershipTiers.id).notNull(),
+  status: text("status").notNull().default("active"), // "active", "paused", "cancelled", "expired"
+  cutsUsedThisMonth: integer("cuts_used_this_month").default(0),
+  startDate: timestamp("start_date").defaultNow(),
+  endDate: timestamp("end_date"),
+  nextBillingDate: timestamp("next_billing_date"),
+  autoRenew: boolean("auto_renew").default(true),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  pausedAt: timestamp("paused_at"),
+  cancelledAt: timestamp("cancelled_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Virtual Queue
+export const virtualQueue = pgTable("virtual_queue", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  barberId: integer("barber_id").references(() => barbers.id),
+  serviceId: integer("service_id").references(() => services.id),
+  position: integer("position").notNull(),
+  estimatedWaitTime: integer("estimated_wait_time"), // in minutes
+  status: text("status").notNull().default("waiting"), // "waiting", "called", "serving", "completed", "cancelled"
+  joinedAt: timestamp("joined_at").defaultNow(),
+  calledAt: timestamp("called_at"),
+  completedAt: timestamp("completed_at"),
+  notificationSent: boolean("notification_sent").default(false),
+});
+
+// AI Style Consultations
+export const styleConsultations = pgTable("style_consultations", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }).notNull(),
+  faceShapePhoto: text("face_shape_photo"),
+  detectedFaceShape: text("detected_face_shape"), // "oval", "round", "square", "heart", "diamond"
+  currentStyle: text("current_style"),
+  desiredStyle: text("desired_style"),
+  lifestyle: text("lifestyle"), // "professional", "casual", "athletic", etc.
+  hairType: text("hair_type"),
+  aiRecommendations: jsonb("ai_recommendations"), // array of style suggestions
+  selectedStyle: text("selected_style"),
+  barberId: integer("barber_id").references(() => barbers.id),
+  bookingId: integer("booking_id").references(() => bookings.id),
+  status: text("status").notNull().default("pending"), // "pending", "completed"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Product Marketplace
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  category: text("category").notNull(), // "hair_care", "styling", "grooming", "tools"
+  brand: text("brand"),
+  price: integer("price").notNull(), // in cents
+  compareAtPrice: integer("compare_at_price"), // original price for discounts
+  stock: integer("stock").default(0),
+  lowStockThreshold: integer("low_stock_threshold").default(5),
+  images: text("images").array(),
+  isActive: boolean("is_active").default(true),
+  isFeatured: boolean("is_featured").default(false),
+  tags: text("tags").array(),
+  barberRecommended: boolean("barber_recommended").default(false),
+  recommendedBy: integer("recommended_by").references(() => barbers.id),
+  affiliateUrl: text("affiliate_url"),
+  commissionRate: integer("commission_rate"), // percentage
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Product Orders
+export const productOrders = pgTable("product_orders", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }).notNull(),
+  orderNumber: text("order_number").notNull().unique(),
+  subtotal: integer("subtotal").notNull(), // in cents
+  tax: integer("tax").default(0),
+  shipping: integer("shipping").default(0),
+  discount: integer("discount").default(0),
+  total: integer("total").notNull(),
+  status: text("status").notNull().default("pending"), // "pending", "processing", "shipped", "delivered", "cancelled"
+  paymentStatus: text("payment_status").notNull().default("pending"), // "pending", "paid", "refunded"
+  stripePaymentId: text("stripe_payment_id"),
+  shippingAddress: jsonb("shipping_address"),
+  trackingNumber: text("tracking_number"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  shippedAt: timestamp("shipped_at"),
+  deliveredAt: timestamp("delivered_at"),
+});
+
+// Product Order Items
+export const productOrderItems = pgTable("product_order_items", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => productOrders.id, { onDelete: "cascade" }).notNull(),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPrice: integer("unit_price").notNull(), // in cents
+  totalPrice: integer("total_price").notNull(), // in cents
+});
+
+// Multi-Location Support
+export const locations = pgTable("locations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  country: text("country").notNull().default("US"),
+  phone: text("phone"),
+  email: text("email"),
+  latitude: numeric("latitude"),
+  longitude: numeric("longitude"),
+  timezone: text("timezone").default("America/New_York"),
+  businessHours: jsonb("business_hours"), // { monday: { open: "09:00", close: "18:00" }, etc. }
+  amenities: text("amenities").array(),
+  photos: text("photos").array(),
+  isActive: boolean("is_active").default(true),
+  isFlagship: boolean("is_flagship").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Barber-Location Assignments
+export const barberLocations = pgTable("barber_locations", {
+  id: serial("id").primaryKey(),
+  barberId: integer("barber_id").references(() => barbers.id, { onDelete: "cascade" }).notNull(),
+  locationId: integer("location_id").references(() => locations.id, { onDelete: "cascade" }).notNull(),
+  isPrimary: boolean("is_primary").default(false),
+  schedule: jsonb("schedule"), // location-specific schedule
+  startDate: timestamp("start_date").defaultNow(),
+  endDate: timestamp("end_date"),
+});
+
+// Customer Gallery (Public Portfolio)
+export const galleryPhotos = pgTable("gallery_photos", {
+  id: serial("id").primaryKey(),
+  barberId: integer("barber_id").references(() => barbers.id, { onDelete: "cascade" }).notNull(),
+  clientId: integer("client_id").references(() => clients.id),
+  serviceId: integer("service_id").references(() => services.id),
+  beforePhoto: text("before_photo"),
+  afterPhoto: text("after_photo").notNull(),
+  description: text("description"),
+  tags: text("tags").array(),
+  productsUsed: text("products_used").array(), // product IDs
+  isPublic: boolean("is_public").default(false),
+  isFeatured: boolean("is_featured").default(false),
+  likes: integer("likes").default(0),
+  views: integer("views").default(0),
+  clientConsent: boolean("client_consent").default(false),
+  instagramUrl: text("instagram_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Gallery Likes
+export const galleryLikes = pgTable("gallery_likes", {
+  id: serial("id").primaryKey(),
+  photoId: integer("photo_id").references(() => galleryPhotos.id, { onDelete: "cascade" }).notNull(),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }),
+  ipAddress: text("ip_address"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Achievements/Gamification
+export const achievements = pgTable("achievements", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon"),
+  category: text("category").notNull(), // "visits", "spending", "referrals", "reviews", "social"
+  requirement: jsonb("requirement"), // { type: "visits", count: 5 }
+  reward: jsonb("reward"), // { type: "points", value: 100 } or { type: "discount", value: 10 }
+  points: integer("points").default(0),
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Client Achievements
+export const clientAchievements = pgTable("client_achievements", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id, { onDelete: "cascade" }).notNull(),
+  achievementId: integer("achievement_id").references(() => achievements.id, { onDelete: "cascade" }).notNull(),
+  unlockedAt: timestamp("unlocked_at").defaultNow(),
+  progress: integer("progress").default(0),
+  isCompleted: boolean("is_completed").default(false),
+  sharedToSocial: boolean("shared_to_social").default(false),
+});
+
+// Wait List (for fully booked times)
+export const waitList = pgTable("wait_list", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").references(() => clients.id),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  customerEmail: text("customer_email"),
+  barberId: integer("barber_id").references(() => barbers.id),
+  serviceId: integer("service_id").references(() => services.id),
+  preferredDate: text("preferred_date"), // YYYY-MM-DD
+  preferredTime: text("preferred_time"), // HH:MM
+  flexibleDates: text("flexible_dates").array(), // array of dates
+  flexibleTimes: text("flexible_times").array(), // array of time ranges
+  status: text("status").notNull().default("active"), // "active", "matched", "cancelled"
+  notified: boolean("notified").default(false),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertBarberSchema = createInsertSchema(barbers).omit({
   id: true,
 });
@@ -498,3 +779,92 @@ export type ReminderLog = typeof reminderLogs.$inferSelect;
 
 export type InsertStaffBreak = z.infer<typeof insertStaffBreakSchema>;
 export type StaffBreak = typeof staffBreaks.$inferSelect;
+
+// ==================================================
+// POWERHOUSE FEATURES - Insert Schemas & Types
+// ==================================================
+
+// Gift Cards
+export const insertGiftCardSchema = createInsertSchema(giftCards).omit({ id: true, createdAt: true, purchasedAt: true });
+export type InsertGiftCard = z.infer<typeof insertGiftCardSchema>;
+export type GiftCard = typeof giftCards.$inferSelect;
+
+// Gift Card Transactions
+export const insertGiftCardTransactionSchema = createInsertSchema(giftCardTransactions).omit({ id: true, createdAt: true });
+export type InsertGiftCardTransaction = z.infer<typeof insertGiftCardTransactionSchema>;
+export type GiftCardTransaction = typeof giftCardTransactions.$inferSelect;
+
+// Referrals
+export const insertReferralSchema = createInsertSchema(referrals).omit({ id: true, createdAt: true });
+export type InsertReferral = z.infer<typeof insertReferralSchema>;
+export type Referral = typeof referrals.$inferSelect;
+
+// Membership Tiers
+export const insertMembershipTierSchema = createInsertSchema(membershipTiers).omit({ id: true, createdAt: true });
+export type InsertMembershipTier = z.infer<typeof insertMembershipTierSchema>;
+export type MembershipTier = typeof membershipTiers.$inferSelect;
+
+// Client Memberships
+export const insertClientMembershipSchema = createInsertSchema(clientMemberships).omit({ id: true, createdAt: true });
+export type InsertClientMembership = z.infer<typeof insertClientMembershipSchema>;
+export type ClientMembership = typeof clientMemberships.$inferSelect;
+
+// Virtual Queue
+export const insertVirtualQueueSchema = createInsertSchema(virtualQueue).omit({ id: true, joinedAt: true });
+export type InsertVirtualQueue = z.infer<typeof insertVirtualQueueSchema>;
+export type VirtualQueue = typeof virtualQueue.$inferSelect;
+
+// Style Consultations
+export const insertStyleConsultationSchema = createInsertSchema(styleConsultations).omit({ id: true, createdAt: true });
+export type InsertStyleConsultation = z.infer<typeof insertStyleConsultationSchema>;
+export type StyleConsultation = typeof styleConsultations.$inferSelect;
+
+// Products
+export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type Product = typeof products.$inferSelect;
+
+// Product Orders
+export const insertProductOrderSchema = createInsertSchema(productOrders).omit({ id: true, createdAt: true, shippedAt: true, deliveredAt: true });
+export type InsertProductOrder = z.infer<typeof insertProductOrderSchema>;
+export type ProductOrder = typeof productOrders.$inferSelect;
+
+// Product Order Items
+export const insertProductOrderItemSchema = createInsertSchema(productOrderItems).omit({ id: true });
+export type InsertProductOrderItem = z.infer<typeof insertProductOrderItemSchema>;
+export type ProductOrderItem = typeof productOrderItems.$inferSelect;
+
+// Locations
+export const insertLocationSchema = createInsertSchema(locations).omit({ id: true, createdAt: true });
+export type InsertLocation = z.infer<typeof insertLocationSchema>;
+export type Location = typeof locations.$inferSelect;
+
+// Barber Locations
+export const insertBarberLocationSchema = createInsertSchema(barberLocations).omit({ id: true });
+export type InsertBarberLocation = z.infer<typeof insertBarberLocationSchema>;
+export type BarberLocation = typeof barberLocations.$inferSelect;
+
+// Gallery Photos
+export const insertGalleryPhotoSchema = createInsertSchema(galleryPhotos).omit({ id: true, createdAt: true });
+export type InsertGalleryPhoto = z.infer<typeof insertGalleryPhotoSchema>;
+export type GalleryPhoto = typeof galleryPhotos.$inferSelect;
+
+// Gallery Likes
+export const insertGalleryLikeSchema = createInsertSchema(galleryLikes).omit({ id: true, createdAt: true });
+export type InsertGalleryLike = z.infer<typeof insertGalleryLikeSchema>;
+export type GalleryLike = typeof galleryLikes.$inferSelect;
+
+// Achievements
+export const insertAchievementSchema = createInsertSchema(achievements).omit({ id: true, createdAt: true });
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;
+
+// Client Achievements
+export const insertClientAchievementSchema = createInsertSchema(clientAchievements).omit({ id: true, unlockedAt: true });
+export type InsertClientAchievement = z.infer<typeof insertClientAchievementSchema>;
+export type ClientAchievement = typeof clientAchievements.$inferSelect;
+
+// Wait List
+export const insertWaitListSchema = createInsertSchema(waitList).omit({ id: true, createdAt: true });
+export type InsertWaitList = z.infer<typeof insertWaitListSchema>;
+export type WaitList = typeof waitList.$inferSelect;
